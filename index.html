@@ -163,6 +163,12 @@
 </head>
 <body>
 
+<div id="closedOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; text-align: center; padding-top: 150px;">
+    <i class="fas fa-store-slash" style="font-size: 5rem; color: #9A7E6F; margin-bottom: 20px;"></i>
+    <h2 style="color: #5D4037; font-weight: bold;">本店休息中</h2>
+    <p style="color: #8D6E63; font-size: 1.2rem;" id="closedReason">目前暫停接單，請稍後再來！</p>
+</div>
+
 <div class="header-section text-center">
     <img src="banner.png" class="header-img" alt="Header">
 </div>
@@ -289,7 +295,7 @@
 
 <script>
     // ★★★ 請替換成您的設定 ★★★
-    const API_URL = "https://script.google.com/macros/s/AKfycbz_c4-wuZ5MJsf9C3jCmONPbHq1BS5u8OFJmw16uKh248VBP93Yg_P0zDykGmSmXATv/exec";  
+    const API_URL = "https://script.google.com/macros/s/AKfycbz-p_Xd3FLIY58_cbNbGdKshNh-HBkbAzQ8E7bxK8gMkBvq3dpbj9v_rv47qRe7p18/exec";  
     const LIFF_ID = "2008905608-DekFDzvW"; 
 
     window.onload = function() {
@@ -309,7 +315,45 @@
         checkAddonAvailability();
     };
 
-    function fetchDates() {
+	function fetchDates() {
+        const dateSelect = document.getElementById('pickupDate');
+        
+        fetch(API_URL) 
+        .then(response => response.json())
+        .then(data => {
+            // ★ 修正點 1：先檢查營業狀態
+            // 後端回傳的是 data = { dates: [...], status: "..." }
+            
+            if (data.status !== "營業中") {
+                // 如果不是營業中，顯示打烊畫面
+                document.getElementById('closedOverlay').style.display = 'block';
+                document.getElementById('closedReason').innerText = data.status === "已截止" ? "本日預定已截止，下次請早！" : "目前已額滿，暫停接單";
+                return; // 結束，不載入日期
+            }
+
+            // ★ 修正點 2：正確讀取日期陣列 (data.dates)
+            let dates = data.dates;
+
+            dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
+            
+            if (!dates || dates.length === 0) {
+                 dateSelect.innerHTML = '<option value="" disabled>目前無開放日期</option>';
+                 return;
+            }
+
+            dates.forEach(date => {
+                let option = document.createElement("option");
+                option.text = date;
+                option.value = date;
+                dateSelect.add(option);
+            });
+        })
+        .catch(err => {
+            console.error("日期載入失敗", err);
+            dateSelect.innerHTML = '<option value="" disabled>日期載入失敗</option>';
+            document.getElementById('dateLoadingText').style.display = 'block';
+        });
+    }
         const dateSelect = document.getElementById('pickupDate');
         fetch(API_URL) 
         .then(response => response.json())
@@ -482,6 +526,3 @@
 
 </body>
 </html>
-
-
-
