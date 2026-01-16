@@ -265,8 +265,14 @@
         .then(data => {
             // 1. 處理日期
             if (data.dates.length === 0) {
-                 dateSelect.innerHTML = '<option value="" disabled>目前無開放日期</option>';
+                 // 如果沒有日期，就顯示全螢幕打烊畫面
+                 document.getElementById('closedOverlay').style.display = 'block';
+                 document.getElementById('closedReason').innerText = "目前無開放日期，請稍後再來！";
+                 return; // 結束程式，不顯示下拉選單
             } else {
+                 // 如果有日期，確保打烊畫面是隱藏的
+                 document.getElementById('closedOverlay').style.display = 'none';
+                 // 程式判斷
                  dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
                  data.dates.forEach(item => {
                     let option = document.createElement("option");
@@ -493,3 +499,4 @@
 
 </body>
 </html>
+
