@@ -295,7 +295,7 @@
 
 <script>
     // ★★★ 請替換成您的設定 ★★★
-    const API_URL = "https://script.google.com/macros/s/AKfycbz-p_Xd3FLIY58_cbNbGdKshNh-HBkbAzQ8E7bxK8gMkBvq3dpbj9v_rv47qRe7p18/exec";  
+    const API_URL = "https://script.google.com/macros/s/AKfycbwbAzgr5up_FFVVACMkpCm3B8MOgsFQ5tt2xyIne3d4BVbYfHGKFCIi_EVMb46iGlnm/exec";  
     const LIFF_ID = "2008905608-DekFDzvW"; 
 
     window.onload = function() {
@@ -321,32 +321,31 @@
         fetch(API_URL) 
         .then(response => response.json())
         .then(data => {
-            // ★ 修正點 1：先檢查營業狀態
-            // 後端回傳的是 data = { dates: [...], status: "..." }
+            // data 現在是一個陣列，包含 [{value:..., text:..., disabled:...}, ...]
             
-            if (data.status !== "營業中") {
-                // 如果不是營業中，顯示打烊畫面
-                document.getElementById('closedOverlay').style.display = 'block';
-                document.getElementById('closedReason').innerText = data.status === "已截止" ? "本日預定已截止，下次請早！" : "目前已額滿，暫停接單";
-                return; // 結束，不載入日期
-            }
-
-            // ★ 修正點 2：正確讀取日期陣列 (data.dates)
-            let dates = data.dates;
-
             dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
             
-            if (!dates || dates.length === 0) {
+            // 如果後台完全沒資料
+            if (data.length === 0) {
                  dateSelect.innerHTML = '<option value="" disabled>目前無開放日期</option>';
                  return;
             }
 
-            dates.forEach(date => {
+            data.forEach(item => {
                 let option = document.createElement("option");
-                option.text = date;
-                option.value = date;
+                option.value = item.value; // 真正的值 (例如 2/9)
+                option.text = item.text;   // 顯示的字 (例如 2/9 (已額滿))
+                
+                // ★ 關鍵：如果後端說這個日期不能選 (已額滿或已截止)
+                if (item.disabled) {
+                    option.disabled = true; // 這會讓選項變灰色，無法點擊 (這是最好的使用者體驗)
+                }
+                
                 dateSelect.add(option);
             });
+            
+            // 隱藏原本的全版覆蓋層 (因為現在是針對個別日期判斷)
+            document.getElementById('closedOverlay').style.display = 'none';
         })
         .catch(err => {
             console.error("日期載入失敗", err);
@@ -419,18 +418,31 @@
     }
 
     function submitOrder() {
+		// 1. 取得表單資料
         let qty_pork = document.getElementById('qty_pork').value;
         let qty_thigh = document.getElementById('qty_thigh').value;
         let qty_feet = document.getElementById('qty_feet').value;
         let qty_bamboo = document.getElementById('qty_bamboo').value;
-        let qty_extra = document.getElementById('qty_extra').value; // ★ 取得新欄位
+        let qty_extra = document.getElementById('qty_extra').value;
 
         let manualName = document.getElementById('userNameInput').value;
         let userPhone = document.getElementById('userPhone').value;
         let noteInput = document.getElementById('note').value;
         let pickupDate = document.getElementById('pickupDate').value;
 
+		// 2. 基本驗證
         if (!pickupDate) { alert("請選擇預定取貨日期喔！📅"); document.getElementById('pickupDate').focus(); return; }
+		// ★★★★★ 新增防呆檢查 (加在這裡) ★★★★★
+        // 取得目前選到的那個選項的文字 (例如 "2/9 (已額滿)")
+        let selectedOptionText = pickupDateSelect.options[pickupDateSelect.selectedIndex].text;
+        
+        // 如果文字裡面包含 "已額滿" 或 "已截止"，就阻擋送出
+        if (selectedOptionText.includes("(已額滿)") || selectedOptionText.includes("(已截止)")) {
+            alert("抱歉！該日期已額滿或截止，無法下單 😭");
+            return; // 停止程式，不送出
+        }
+        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+		
         if (!manualName) { alert("請填寫取貨人姓名！👤"); document.getElementById('userNameInput').focus(); return; }
         if (!userPhone) { alert("請填寫聯絡電話！📞"); document.getElementById('userPhone').focus(); return; }
         
@@ -455,7 +467,7 @@
         let receiptItems = [];
         if(qty_pork > 0) receiptItems.push(`封肉 x${qty_pork} (約$${250*qty_pork}~$${350*qty_pork})`);
         if(qty_thigh > 0) receiptItems.push(`蹄膀 x${qty_thigh} (約$${350*qty_thigh}~$${450*qty_thigh})`);
-        if(qty_feet > 0) receiptItems.push(`綜合豬腳 x${qty_feet} (約$${350*qty_feet})`);
+        if(qty_feet > 0) receiptItems.push(`綜合豬腳 x${qty_feet} (約$${500*qty_feet})`);
         if(qty_bamboo > 0) receiptItems.push(`筍干 x${qty_bamboo} ($${50*qty_bamboo})`);
         if(qty_extra > 0) receiptItems.push(`加購腳蹄 x${qty_extra} ($${100*qty_extra})`);
         
