@@ -102,17 +102,43 @@
             display: inline-block;
         }
 
-        /* 加減按鈕 */
+        /* ★★★ 加減按鈕樣式更新 (支援手動輸入) ★★★ */
         .stepper { display: flex; align-items: center; background: #F5F5F5; border-radius: 25px; padding: 3px; }
+        
         .stepper-btn { 
             width: 32px; height: 32px; border-radius: 50%; border: none; 
             background: white; color: var(--primary-color); font-weight: bold; 
             display: flex; align-items: center; justify-content: center; cursor: pointer; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s; 
+            
+            /* 防止手機快速點擊時畫面放大 */
+            touch-action: manipulation; 
         }
         .stepper-btn:active { transform: scale(0.9); }
         .stepper-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
-        .stepper-input { width: 40px; text-align: center; border: none; background: transparent; font-weight: bold; color: var(--text-dark); pointer-events: none; }
+        
+        /* 輸入框樣式優化 */
+        .stepper-input { 
+            width: 50px; /* 加寬一點 */
+            text-align: center; 
+            border: 1px solid transparent; 
+            background: transparent; 
+            font-weight: bold; 
+            color: var(--text-dark); 
+            pointer-events: auto; /* 允許點擊輸入 */
+            border-radius: 4px;
+        }
+        .stepper-input:focus {
+            background: #fff;
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        /* 隱藏瀏覽器預設的數字上下箭頭 */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
 
         /* 底部按鈕區 */
         .bottom-bar { 
@@ -211,7 +237,7 @@
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_pork', -1)"><i class="fas fa-minus"></i></button>
-                <input type="text" class="stepper-input" id="qty_pork" value="0" readonly>
+                <input type="number" inputmode="numeric" class="stepper-input" id="qty_pork" value="0" oninput="manualChange(this.id)" onblur="checkEmpty(this.id)">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_pork', 1)"><i class="fas fa-plus"></i></button>
             </div>
         </div>
@@ -224,7 +250,7 @@
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_thigh', -1)"><i class="fas fa-minus"></i></button>
-                <input type="text" class="stepper-input" id="qty_thigh" value="0" readonly>
+                <input type="number" inputmode="numeric" class="stepper-input" id="qty_thigh" value="0" oninput="manualChange(this.id)" onblur="checkEmpty(this.id)">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_thigh', 1)"><i class="fas fa-plus"></i></button>
             </div>
         </div>
@@ -237,7 +263,7 @@
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_feet', -1)"><i class="fas fa-minus"></i></button>
-                <input type="text" class="stepper-input" id="qty_feet" value="0" readonly>
+                <input type="number" inputmode="numeric" class="stepper-input" id="qty_feet" value="0" oninput="manualChange(this.id)" onblur="checkEmpty(this.id)">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_feet', 1)"><i class="fas fa-plus"></i></button>
             </div>
         </div>
@@ -250,7 +276,7 @@
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_bamboo', -1)"><i class="fas fa-minus"></i></button>
-                <input type="text" class="stepper-input" id="qty_bamboo" value="0" readonly>
+                <input type="number" inputmode="numeric" class="stepper-input" id="qty_bamboo" value="0" oninput="manualChange(this.id)" onblur="checkEmpty(this.id)">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_bamboo', 1)"><i class="fas fa-plus"></i></button>
             </div>
         </div>
@@ -266,7 +292,7 @@
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn btn-extra" disabled onclick="changeQty('qty_extra', -1)"><i class="fas fa-minus"></i></button>
-                <input type="text" class="stepper-input" id="qty_extra" value="0" readonly>
+                <input type="number" inputmode="numeric" class="stepper-input" id="qty_extra" value="0" oninput="manualChange(this.id)" onblur="checkEmpty(this.id)" disabled>
                 <button type="button" class="stepper-btn btn-extra" disabled onclick="changeQty('qty_extra', 1)"><i class="fas fa-plus"></i></button>
             </div>
         </div>
@@ -315,17 +341,14 @@
         checkAddonAvailability();
     };
 
-	function fetchDates() {
+    function fetchDates() {
         const dateSelect = document.getElementById('pickupDate');
         
         fetch(API_URL) 
         .then(response => response.json())
         .then(data => {
-            // data 現在是一個陣列，包含 [{value:..., text:..., disabled:...}, ...]
-            
             dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
             
-            // 如果後台完全沒資料
             if (data.length === 0) {
                  dateSelect.innerHTML = '<option value="" disabled>目前無開放日期</option>';
                  return;
@@ -333,18 +356,16 @@
 
             data.forEach(item => {
                 let option = document.createElement("option");
-                option.value = item.value; // 真正的值 (例如 2/9)
-                option.text = item.text;   // 顯示的字 (例如 2/9 (已額滿))
+                option.value = item.value; 
+                option.text = item.text;   
                 
-                // ★ 關鍵：如果後端說這個日期不能選 (已額滿或已截止)
                 if (item.disabled) {
-                    option.disabled = true; // 這會讓選項變灰色，無法點擊 (這是最好的使用者體驗)
+                    option.disabled = true; 
                 }
                 
                 dateSelect.add(option);
             });
             
-            // 隱藏原本的全版覆蓋層 (因為現在是針對個別日期判斷)
             document.getElementById('closedOverlay').style.display = 'none';
         })
         .catch(err => {
@@ -355,9 +376,8 @@
     }
 
 
-    // ★ 檢查加購是否可用
+    // ★ 檢查加購是否可用 (整合輸入框狀態)
     function checkAddonAvailability() {
-        // 主餐數量
         let mainQty = (parseInt(document.getElementById('qty_pork').value) || 0) +
                       (parseInt(document.getElementById('qty_thigh').value) || 0) +
                       (parseInt(document.getElementById('qty_feet').value) || 0);
@@ -368,38 +388,60 @@
         const lockMsg = document.getElementById('lockMsg');
 
         if (mainQty > 0) {
-            // 解鎖
             extraRow.style.opacity = '1';
             lockMsg.style.display = 'none';
             extraBtns.forEach(btn => btn.disabled = false);
+            extraInput.disabled = false; // 解鎖輸入框
         } else {
-            // 鎖定並歸零
             extraRow.style.opacity = '0.6';
             lockMsg.style.display = 'inline-block';
             extraBtns.forEach(btn => btn.disabled = true);
-            extraInput.value = 0; // 如果把主餐刪光，加購也要歸零
+            extraInput.disabled = true;  // 鎖定輸入框
+            extraInput.value = 0; 
         }
-        updateSummary(); // 更新底部顯示，避免歸零後還顯示在購物車
+        updateSummary(); 
     }
 
+    // ★ 更新後的 changeQty (支援上限)
     function changeQty(id, delta) {
         const input = document.getElementById(id);
         let currentVal = parseInt(input.value) || 0;
         let newVal = currentVal + delta;
+        
         if (newVal < 0) newVal = 0;
-        if (newVal > 20) newVal = 20; 
+        if (newVal > 50) newVal = 50; // 開放手動輸入後，上限可設高一點
+        
         input.value = newVal;
-
-        // ★ 每次改變數量，都要檢查「加購腳蹄」是否符合規則
         checkAddonAvailability();
     }
 
+    // ★ 新增：手動輸入處理
+    function manualChange(id) {
+        const input = document.getElementById(id);
+        let val = parseInt(input.value);
+        if (isNaN(val)) return;
+
+        if (val < 0) input.value = 0;
+        if (val > 50) input.value = 50;
+
+        checkAddonAvailability();
+    }
+
+    // ★ 新增：離開焦點時檢查空值
+    function checkEmpty(id) {
+        const input = document.getElementById(id);
+        if (input.value === "" || isNaN(parseInt(input.value))) {
+            input.value = 0;
+            checkAddonAvailability();
+        }
+    }
+
     function updateSummary() {
-        let p1 = parseInt(document.getElementById('qty_pork').value);   // 封肉
-        let p2 = parseInt(document.getElementById('qty_thigh').value);  // 蹄膀
-        let p3 = parseInt(document.getElementById('qty_feet').value);   // 綜合豬腳
-        let p4 = parseInt(document.getElementById('qty_bamboo').value); // 筍子
-        let p5 = parseInt(document.getElementById('qty_extra').value);  // 加購腳蹄
+        let p1 = parseInt(document.getElementById('qty_pork').value);   
+        let p2 = parseInt(document.getElementById('qty_thigh').value);  
+        let p3 = parseInt(document.getElementById('qty_feet').value);   
+        let p4 = parseInt(document.getElementById('qty_bamboo').value); 
+        let p5 = parseInt(document.getElementById('qty_extra').value);  
 
         let summary = [];
         if(p1 > 0) summary.push(`封肉x${p1}`);
@@ -418,7 +460,6 @@
     }
 
     function submitOrder() {
-		// 1. 取得表單資料
         let qty_pork = document.getElementById('qty_pork').value;
         let qty_thigh = document.getElementById('qty_thigh').value;
         let qty_feet = document.getElementById('qty_feet').value;
@@ -428,26 +469,24 @@
         let manualName = document.getElementById('userNameInput').value;
         let userPhone = document.getElementById('userPhone').value;
         let noteInput = document.getElementById('note').value;
-		// 日期
-		let pickupDateSelect = document.getElementById('pickupDate'); // 抓取整個選單元件
-        let pickupDate = pickupDateSelect.value;
-		// 2. 基本驗證
-        if (!pickupDate) { alert("請選擇預定取貨日期喔！📅"); document.getElementById('pickupDate').focus(); return; }
-		// ★★★★★ 新增防呆檢查 (加在這裡) ★★★★★
-        // 取得目前選到的那個選項的文字 (例如 "2/9 (已額滿)")
-        let selectedOptionText = pickupDateSelect.options[pickupDateSelect.selectedIndex].text;
         
-        // 如果文字裡面包含 "已額滿" 或 "已截止"，就阻擋送出
+        // ★ 修正：先取得元件，再取值
+        let pickupDateSelect = document.getElementById('pickupDate'); 
+        let pickupDate = pickupDateSelect.value;
+        
+        // 驗證
+        if (!pickupDate) { alert("請選擇預定取貨日期喔！📅"); pickupDateSelect.focus(); return; }
+
+        // ★★★ 防呆檢查：檢查是否額滿 ★★★
+        let selectedOptionText = pickupDateSelect.options[pickupDateSelect.selectedIndex].text;
         if (selectedOptionText.includes("(已額滿)") || selectedOptionText.includes("(已截止)")) {
             alert("抱歉！該日期已額滿或截止，無法下單 😭");
-            return; // 停止程式，不送出
+            return; 
         }
-        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-		
+
         if (!manualName) { alert("請填寫取貨人姓名！👤"); document.getElementById('userNameInput').focus(); return; }
         if (!userPhone) { alert("請填寫聯絡電話！📞"); document.getElementById('userPhone').focus(); return; }
         
-        // 檢查購物車是否為空 (筍子不算主餐，但也許可以單買？這邊假設全部為0才擋)
         if (qty_pork==0 && qty_feet==0 && qty_thigh==0 && qty_bamboo==0 && qty_extra==0) { 
             alert("😅 購物車是空的喔！"); return; 
         }
@@ -460,11 +499,10 @@
             qty_thigh: qty_thigh,
             qty_feet: qty_feet,
             qty_bamboo: qty_bamboo,
-            qty_extra: qty_extra, // ★ 傳送新欄位
+            qty_extra: qty_extra, 
             note: noteInput
         };
 
-        // 準備「存根聯」
         let receiptItems = [];
         if(qty_pork > 0) receiptItems.push(`封肉 x${qty_pork} (約$${250*qty_pork}~$${350*qty_pork})`);
         if(qty_thigh > 0) receiptItems.push(`蹄膀 x${qty_thigh} (約$${350*qty_thigh}~$${450*qty_thigh})`);
@@ -518,5 +556,3 @@
 
 </body>
 </html>
-
-
