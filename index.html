@@ -354,28 +354,7 @@
             document.getElementById('dateLoadingText').style.display = 'block';
         });
     }
-        const dateSelect = document.getElementById('pickupDate');
-        fetch(API_URL) 
-        .then(response => response.json())
-        .then(dates => {
-            dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
-            if (dates.length === 0) {
-                 dateSelect.innerHTML = '<option value="" disabled>目前無開放日期</option>';
-                 return;
-            }
-            dates.forEach(date => {
-                let option = document.createElement("option");
-                option.text = date;
-                option.value = date;
-                dateSelect.add(option);
-            });
-        })
-        .catch(err => {
-            console.error("日期載入失敗", err);
-            dateSelect.innerHTML = '<option value="" disabled>日期載入失敗</option>';
-            document.getElementById('dateLoadingText').style.display = 'block';
-        });
-    }
+
 
     // ★ 檢查加購是否可用
     function checkAddonAvailability() {
