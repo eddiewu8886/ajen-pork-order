@@ -100,7 +100,7 @@
         </div>
 
         <div class="menu-item">
-            <div><div class="item-name">🎋 鮮脆筍子</div><div class="item-desc">高湯熬煮，鮮甜入味</div></div>
+            <div><div class="item-name">🎋 筍子</div><div class="item-desc">鮮甜入味</div></div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_bamboo', -1)"><i class="fas fa-minus"></i></button>
                 <input type="text" class="stepper-input" id="qty_bamboo" value="0" readonly>
@@ -127,7 +127,7 @@
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <script>
-    // ★★★ 請替換成您的設定 ★★★
+    // ★★★ 您的專屬設定 ★★★
     const API_URL = "https://script.google.com/macros/s/AKfycby6mG2x-sYYeHJZ5AQhDMEOgpC0QqElTWx6XPKy2gDFiPWSLwfQoalaTe-DRCZna6w_/exec";  
     const LIFF_ID = "2008905608-DekFDzvW"; 
 
@@ -144,25 +144,23 @@
             }
         });
 
-        // 2. ★ 自動從 Google Sheet 抓取日期
+        // 2. 自動從 Google Sheet 抓取日期
         fetchDates();
     };
 
     function fetchDates() {
         const dateSelect = document.getElementById('pickupDate');
         
-        // 呼叫 GAS 的 doGet
         fetch(API_URL) 
         .then(response => response.json())
         .then(dates => {
-            dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>'; // 清空並設預設值
+            dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
             
             if (dates.length === 0) {
                  dateSelect.innerHTML = '<option value="" disabled>目前無開放日期</option>';
                  return;
             }
 
-            // 把後台抓到的日期一個個加進去
             dates.forEach(date => {
                 let option = document.createElement("option");
                 option.text = date;
@@ -208,6 +206,7 @@
         }
     }
 
+    // ★ 更新後的送單程式，包含發送 LINE 訊息 ★
     function submitOrder() {
         let qty_pork = document.getElementById('qty_pork').value;
         let qty_feet = document.getElementById('qty_feet').value;
@@ -217,33 +216,17 @@
         let manualName = document.getElementById('userNameInput').value;
         let userPhone = document.getElementById('userPhone').value;
         let noteInput = document.getElementById('note').value;
-        
-        // ★ 取得日期
         let pickupDate = document.getElementById('pickupDate').value;
 
         // 驗證
-        if (!pickupDate) {
-            alert("請選擇預定取貨日期喔！📅");
-            document.getElementById('pickupDate').focus();
-            return;
-        }
-        if (!manualName) {
-            alert("請填寫取貨人姓名！👤");
-            document.getElementById('userNameInput').focus();
-            return;
-        }
-        if (!userPhone) {
-            alert("請填寫聯絡電話！📞");
-            document.getElementById('userPhone').focus();
-            return;
-        }
-        if (qty_pork == 0 && qty_feet == 0 && qty_thigh == 0 && qty_bamboo == 0) {
-            alert("😅 購物車是空的喔！");
-            return;
-        }
+        if (!pickupDate) { alert("請選擇預定取貨日期喔！📅"); document.getElementById('pickupDate').focus(); return; }
+        if (!manualName) { alert("請填寫取貨人姓名！👤"); document.getElementById('userNameInput').focus(); return; }
+        if (!userPhone) { alert("請填寫聯絡電話！📞"); document.getElementById('userPhone').focus(); return; }
+        if (qty_pork == 0 && qty_feet == 0 && qty_thigh == 0 && qty_bamboo == 0) { alert("😅 購物車是空的喔！"); return; }
 
+        // 準備要傳送的資料
         const orderData = {
-            pickupDate: pickupDate, // ★ 傳送日期
+            pickupDate: pickupDate,
             userName: manualName,
             userPhone: userPhone,
             qty_pork: qty_pork,
@@ -253,22 +236,61 @@
             note: noteInput
         };
 
+        // 準備「存根聯」的文字內容 (LINE 訊息用)
+        let receiptItems = [];
+        if(qty_pork > 0) receiptItems.push(`封肉 x${qty_pork}`);
+        if(qty_feet > 0) receiptItems.push(`綜合豬腳 x${qty_feet}`);
+        if(qty_thigh > 0) receiptItems.push(`蹄旁 x${qty_thigh}`);
+        if(qty_bamboo > 0) receiptItems.push(`筍子 x${qty_bamboo}`);
+        
+        let receiptText = `【阿珍封肉 - 訂購成功】\n` +
+                          `📅 取貨日期：${pickupDate}\n` +
+                          `👤 取貨人：${manualName}\n` +
+                          `------------------\n` +
+                          `${receiptItems.join('\n')}\n` +
+                          `------------------\n` +
+                          `📞 電話：${userPhone}\n` +
+                          `📝 備註：${noteInput || '無'}\n\n` +
+                          `老闆娘已收到您的訂單，當天見！❤️`;
+
+        // UI 鎖定
         const btn = document.querySelector('.btn-submit');
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 處理中...';
         btn.disabled = true;
 
+        // 1. 先送資料給 Google Sheet (後台)
         fetch(API_URL, {
             method: "POST",
             body: JSON.stringify(orderData)
         })
         .then(response => response.json())
         .then(data => {
-            alert("✅ 訂購成功！\n\n日期：" + pickupDate + "\n期待您的光臨！");
-            liff.closeWindow();
+            // 2. 後台成功後，發送 LINE 訊息 (前台)
+            if (liff.isInClient()) {
+                liff.sendMessages([
+                    {
+                        type: 'text',
+                        text: receiptText
+                    }
+                ])
+                .then(() => {
+                    alert("✅ 訂購成功！LINE 聊天室已傳送訂單明細。");
+                    liff.closeWindow();
+                })
+                .catch((err) => {
+                    console.log('error', err);
+                    alert("✅ 訂購成功！(請記得截圖畫面，訊息發送權限可能未開啟)");
+                    liff.closeWindow();
+                });
+            } else {
+                alert("✅ 訂購成功！");
+                window.location.reload(); 
+            }
         })
         .catch(error => {
-            alert("✅ 訂單已送出！");
-            liff.closeWindow();
+            alert("❌ 發生錯誤，請稍後再試或直接聯繫老闆。");
+            btn.innerHTML = '確認送出訂單';
+            btn.disabled = false;
         });
     }
 </script>
