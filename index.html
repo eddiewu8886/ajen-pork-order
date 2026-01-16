@@ -428,8 +428,9 @@
         let manualName = document.getElementById('userNameInput').value;
         let userPhone = document.getElementById('userPhone').value;
         let noteInput = document.getElementById('note').value;
-        let pickupDate = document.getElementById('pickupDate').value;
-
+		// 日期
+		let pickupDateSelect = document.getElementById('pickupDate'); // 抓取整個選單元件
+        let pickupDate = pickupDateSelect.value;
 		// 2. 基本驗證
         if (!pickupDate) { alert("請選擇預定取貨日期喔！📅"); document.getElementById('pickupDate').focus(); return; }
 		// ★★★★★ 新增防呆檢查 (加在這裡) ★★★★★
@@ -517,3 +518,4 @@
 
 </body>
 </html>
+
