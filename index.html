@@ -11,12 +11,12 @@
     <style>
         /* ★ 配色修改區：柔和奶茶色系 */
         :root {
-            --primary-color: #9A7E6F;  /* 濃郁奶茶色 (按鈕、標題) */
-            --primary-hover: #826a5c;  /* 深一點的奶茶色 */
-            --bg-color: #F8F5F2;       /* 燕麥奶底色 */
+            --primary-color: #9A7E6F;
+            --primary-hover: #826a5c;
+            --bg-color: #F8F5F2;
             --card-bg: #ffffff;
-            --text-dark: #5D4037;      /* 深咖啡色文字 */
-            --text-light: #8D6E63;     /* 淺咖啡色文字 */
+            --text-dark: #5D4037;
+            --text-light: #8D6E63;
             --card-shadow: 0 4px 15px rgba(154, 126, 111, 0.15);
         }
 
@@ -29,160 +29,72 @@
 
         .header-section { position: relative; margin-bottom: -40px; z-index: 1; }
         .header-img { 
-            width: 100%; 
-            height: 220px; 
-            object-fit: cover; 
+            width: 100%; height: 220px; object-fit: cover; 
             border-radius: 0 0 30px 30px; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-            filter: brightness(0.95); /* 讓照片稍微柔和一點 */
+            filter: brightness(0.95);
         }
 
         .main-container { max-width: 600px; margin: 0 auto; position: relative; z-index: 2; padding: 0 15px; }
 
         .content-card { 
-            background: var(--card-bg); 
-            border-radius: 20px; 
-            padding: 25px; 
-            box-shadow: var(--card-shadow); 
-            margin-bottom: 20px; 
+            background: var(--card-bg); border-radius: 20px; padding: 25px; 
+            box-shadow: var(--card-shadow); margin-bottom: 20px; 
             border: 1px solid #EFEBE9;
         }
 
-        h3 { 
-            color: var(--primary-color); 
-            font-weight: 700; 
-            text-align: center; 
-            margin-bottom: 5px; 
-            letter-spacing: 1px;
-        }
-        
+        h3 { color: var(--primary-color); font-weight: 700; text-align: center; margin-bottom: 5px; letter-spacing: 1px; }
         .sub-title { text-align: center; color: var(--text-light); font-size: 0.9rem; margin-bottom: 20px; }
 
-        .form-label { 
-            font-weight: 700; 
-            color: var(--text-dark); 
-            margin-bottom: 8px; 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
-        
-        .form-control, .form-select { 
-            border-radius: 12px; 
-            border: 1px solid #D7CCC8; 
-            background-color: #FAFAFA; 
-            padding: 12px; 
-            color: var(--text-dark);
-        }
-        .form-control:focus, .form-select:focus { 
-            background-color: #fff; 
-            border-color: var(--primary-color); 
-            box-shadow: 0 0 0 4px rgba(154, 126, 111, 0.1); 
-        }
+        .form-label { font-weight: 700; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .form-control, .form-select { border-radius: 12px; border: 1px solid #D7CCC8; background-color: #FAFAFA; padding: 12px; color: var(--text-dark); }
+        .form-control:focus, .form-select:focus { background-color: #fff; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(154, 126, 111, 0.1); }
 
-        /* 菜單項目樣式 */
-        .menu-item { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 18px 0; 
-            border-bottom: 1px dashed #D7CCC8; 
-        }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px dashed #D7CCC8; }
         .menu-item:last-child { border-bottom: none; }
         
         .item-name { font-size: 1.15rem; font-weight: bold; color: var(--text-dark); }
         .item-desc { font-size: 0.85rem; color: #9E9E9E; margin-bottom: 2px;}
         .item-price { 
-            font-size: 0.95rem; 
-            color: var(--primary-color); 
-            font-weight: 600; 
-            background: #EFEBE9;
-            padding: 2px 8px;
-            border-radius: 6px;
-            display: inline-block;
+            font-size: 0.95rem; color: var(--primary-color); font-weight: 600; 
+            background: #EFEBE9; padding: 2px 8px; border-radius: 6px; display: inline-block;
         }
 
-        /* ★★★ 加減按鈕樣式更新 (支援手動輸入) ★★★ */
         .stepper { display: flex; align-items: center; background: #F5F5F5; border-radius: 25px; padding: 3px; }
-        
         .stepper-btn { 
             width: 32px; height: 32px; border-radius: 50%; border: none; 
             background: white; color: var(--primary-color); font-weight: bold; 
             display: flex; align-items: center; justify-content: center; cursor: pointer; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s; 
-            
-            /* 防止手機快速點擊時畫面放大 */
-            touch-action: manipulation; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s; touch-action: manipulation; 
         }
         .stepper-btn:active { transform: scale(0.9); }
         .stepper-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
         
-        /* 輸入框樣式優化 */
         .stepper-input { 
-            width: 50px; /* 加寬一點 */
-            text-align: center; 
-            border: 1px solid transparent; 
-            background: transparent; 
-            font-weight: bold; 
-            color: var(--text-dark); 
-            pointer-events: auto; /* 允許點擊輸入 */
-            border-radius: 4px;
+            width: 50px; text-align: center; border: 1px solid transparent; background: transparent; 
+            font-weight: bold; color: var(--text-dark); pointer-events: auto; border-radius: 4px;
         }
-        .stepper-input:focus {
-            background: #fff;
-            border-color: var(--primary-color);
-            outline: none;
-        }
-        /* 隱藏瀏覽器預設的數字上下箭頭 */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
+        .stepper-input:focus { background: #fff; border-color: var(--primary-color); outline: none; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-        /* 底部按鈕區 */
         .bottom-bar { 
             position: fixed; bottom: 0; left: 0; width: 100%; 
-            background: rgba(255, 255, 255, 0.98); 
-            backdrop-filter: blur(5px); 
-            border-radius: 25px 25px 0 0; 
-            padding: 20px; 
-            box-shadow: 0 -5px 20px rgba(154, 126, 111, 0.1); 
-            z-index: 1000; 
-            border-top: 1px solid #EFEBE9;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(5px); 
+            border-radius: 25px 25px 0 0; padding: 20px; 
+            box-shadow: 0 -5px 20px rgba(154, 126, 111, 0.1); z-index: 1000; border-top: 1px solid #EFEBE9;
         }
 
-        .summary-box { 
-            margin-bottom: 12px; 
-            font-size: 0.95rem; 
-            color: var(--primary-color); 
-            font-weight: bold; 
-            background: #EFEBE9; 
-            padding: 10px; 
-            border-radius: 10px; 
-            text-align: center; 
-        }
+        .summary-box { margin-bottom: 12px; font-size: 0.95rem; color: var(--primary-color); font-weight: bold; background: #EFEBE9; padding: 10px; border-radius: 10px; text-align: center; }
 
         .btn-submit { 
-            background: var(--primary-color); 
-            color: white;
-            border: none; 
-            border-radius: 15px; 
-            padding: 14px; 
-            font-weight: bold; 
-            font-size: 1.1rem; 
-            box-shadow: 0 4px 12px rgba(154, 126, 111, 0.3); 
-            transition: all 0.3s; 
+            background: var(--primary-color); color: white; border: none; border-radius: 15px; 
+            padding: 14px; font-weight: bold; font-size: 1.1rem; 
+            box-shadow: 0 4px 12px rgba(154, 126, 111, 0.3); transition: all 0.3s; 
         }
-        .btn-submit:hover:not(:disabled) { 
-            background-color: var(--primary-hover);
-            transform: translateY(-2px); 
-        }
+        .btn-submit:hover:not(:disabled) { background-color: var(--primary-hover); transform: translateY(-2px); }
         .btn-submit:disabled { background: #CFD8DC; box-shadow: none; }
 
         .required::after { content: "*"; color: #D84315; margin-left: 3px; }
-        
-        /* 鎖定狀態的品項 */
         .item-locked { opacity: 0.5; pointer-events: none; }
         .lock-msg { font-size: 0.8rem; color: #D84315; margin-left: 5px; display: none; }
     </style>
@@ -233,7 +145,7 @@
             <div>
                 <div class="item-name">🍖 封肉</div>
                 <div class="item-desc">肥而不膩，入口即化</div>
-                <div class="item-price">$250 ~ $350 / 份</div>
+                <div class="item-price" id="price_qty_pork">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_pork', -1)"><i class="fas fa-minus"></i></button>
@@ -246,7 +158,7 @@
             <div>
                 <div class="item-name">🍗 蹄膀</div>
                 <div class="item-desc">皮薄肉嫩，下飯首選</div>
-                <div class="item-price">$350 ~ $450 / 份</div>
+                <div class="item-price" id="price_qty_thigh">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_thigh', -1)"><i class="fas fa-minus"></i></button>
@@ -259,7 +171,7 @@
             <div>
                 <div class="item-name">🐷 綜合豬腳</div>
                 <div class="item-desc">Q彈有勁，富含膠質</div>
-                <div class="item-price">$500 / 份</div>
+                <div class="item-price" id="price_qty_feet">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_feet', -1)"><i class="fas fa-minus"></i></button>
@@ -272,7 +184,7 @@
             <div>
                 <div class="item-name">🎋 筍干</div>
                 <div class="item-desc">鮮甜入味</div>
-                <div class="item-price">$50 / 份</div>
+                <div class="item-price" id="price_qty_bamboo">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_bamboo', -1)"><i class="fas fa-minus"></i></button>
@@ -288,7 +200,7 @@
                     <span class="lock-msg" id="lockMsg" style="display:inline-block;">(需購買主餐)</span>
                 </div>
                 <div class="item-desc">喜愛啃骨頭的必加</div>
-                <div class="item-price">$100 / 份</div>
+                <div class="item-price" id="price_qty_extra">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn btn-extra" disabled onclick="changeQty('qty_extra', -1)"><i class="fas fa-minus"></i></button>
@@ -321,8 +233,11 @@
 
 <script>
     // ★★★ 請替換成您的設定 ★★★
-    const API_URL = "https://script.google.com/macros/s/AKfycbwm2yL-LlOLQk16jiXyRzs8yBf4dK85ICPoPhzqFlt856QZz6GlaBQ4iThvYvcZ1vpa/exec";  
+    const API_URL = "https://script.google.com/macros/s/AKfycbwEcfD-U0gUFQtBvL2WgQfh6gQIaMekVYOyUOimwvYFVcNN6QGv9KjRuM4NrFWIEFqf/exec";  
     const LIFF_ID = "2008905608-DekFDzvW"; 
+    
+    // 全域變數：儲存從 Excel 抓下來的菜單價格
+    let GLOBAL_MENU = {};
 
     window.onload = function() {
         liff.init({ liffId: LIFF_ID }).then(() => {
@@ -335,48 +250,57 @@
                 liff.login();
             }
         });
-        fetchDates();
         
-        // 初始化時檢查一次加購按鈕狀態
+        // 初始化系統 (抓日期 + 抓菜單)
+        initSystem();
+        
         checkAddonAvailability();
     };
 
-    function fetchDates() {
+    function initSystem() {
         const dateSelect = document.getElementById('pickupDate');
         
         fetch(API_URL) 
         .then(response => response.json())
         .then(data => {
-            dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
-            
-            if (data.length === 0) {
+            // 1. 處理日期
+            if (data.dates.length === 0) {
                  dateSelect.innerHTML = '<option value="" disabled>目前無開放日期</option>';
-                 return;
+            } else {
+                 dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
+                 data.dates.forEach(item => {
+                    let option = document.createElement("option");
+                    option.value = item.value; 
+                    option.text = item.text;   
+                    if (item.disabled) option.disabled = true; 
+                    dateSelect.add(option);
+                });
             }
-
-            data.forEach(item => {
-                let option = document.createElement("option");
-                option.value = item.value; 
-                option.text = item.text;   
-                
-                if (item.disabled) {
-                    option.disabled = true; 
-                }
-                
-                dateSelect.add(option);
-            });
-            
             document.getElementById('closedOverlay').style.display = 'none';
+
+            // 2. ★ 處理菜單價格 (自動更新網頁顯示)
+            if (data.menu) {
+                GLOBAL_MENU = data.menu; // 存到全域變數
+                
+                // 自動更新網頁上的價格顯示
+                for (const [key, item] of Object.entries(GLOBAL_MENU)) {
+                    let priceDiv = document.getElementById('price_' + key);
+                    if (priceDiv) {
+                        if (item.min === item.max) {
+                            priceDiv.innerText = `$${item.min} / 份`;
+                        } else {
+                            priceDiv.innerText = `$${item.min} ~ $${item.max} / 份`;
+                        }
+                    }
+                }
+            }
         })
         .catch(err => {
-            console.error("日期載入失敗", err);
-            dateSelect.innerHTML = '<option value="" disabled>日期載入失敗</option>';
-            document.getElementById('dateLoadingText').style.display = 'block';
+            console.error("載入失敗", err);
+            dateSelect.innerHTML = '<option value="" disabled>載入失敗，請重新整理</option>';
         });
     }
 
-
-    // ★ 檢查加購是否可用 (整合輸入框狀態)
     function checkAddonAvailability() {
         let mainQty = (parseInt(document.getElementById('qty_pork').value) || 0) +
                       (parseInt(document.getElementById('qty_thigh').value) || 0) +
@@ -391,43 +315,36 @@
             extraRow.style.opacity = '1';
             lockMsg.style.display = 'none';
             extraBtns.forEach(btn => btn.disabled = false);
-            extraInput.disabled = false; // 解鎖輸入框
+            extraInput.disabled = false;
         } else {
             extraRow.style.opacity = '0.6';
             lockMsg.style.display = 'inline-block';
             extraBtns.forEach(btn => btn.disabled = true);
-            extraInput.disabled = true;  // 鎖定輸入框
+            extraInput.disabled = true;
             extraInput.value = 0; 
         }
         updateSummary(); 
     }
 
-    // ★ 更新後的 changeQty (支援上限)
     function changeQty(id, delta) {
         const input = document.getElementById(id);
         let currentVal = parseInt(input.value) || 0;
         let newVal = currentVal + delta;
-        
         if (newVal < 0) newVal = 0;
-        if (newVal > 50) newVal = 50; // 開放手動輸入後，上限可設高一點
-        
+        if (newVal > 50) newVal = 50;
         input.value = newVal;
         checkAddonAvailability();
     }
 
-    // ★ 新增：手動輸入處理
     function manualChange(id) {
         const input = document.getElementById(id);
         let val = parseInt(input.value);
         if (isNaN(val)) return;
-
         if (val < 0) input.value = 0;
         if (val > 50) input.value = 50;
-
         checkAddonAvailability();
     }
 
-    // ★ 新增：離開焦點時檢查空值
     function checkEmpty(id) {
         const input = document.getElementById(id);
         if (input.value === "" || isNaN(parseInt(input.value))) {
@@ -437,18 +354,24 @@
     }
 
     function updateSummary() {
-        let p1 = parseInt(document.getElementById('qty_pork').value);   
-        let p2 = parseInt(document.getElementById('qty_thigh').value);  
-        let p3 = parseInt(document.getElementById('qty_feet').value);   
-        let p4 = parseInt(document.getElementById('qty_bamboo').value); 
-        let p5 = parseInt(document.getElementById('qty_extra').value);  
+        // 為了 summary，我們需要知道品項名稱，如果 Excel 還沒載入完，就先用預設名稱
+        let items = [
+            {id: 'qty_pork', name: '封肉'},
+            {id: 'qty_thigh', name: '蹄膀'},
+            {id: 'qty_feet', name: '豬腳'},
+            {id: 'qty_bamboo', name: '筍干'},
+            {id: 'qty_extra', name: '加購腳蹄'}
+        ];
 
         let summary = [];
-        if(p1 > 0) summary.push(`封肉x${p1}`);
-        if(p2 > 0) summary.push(`蹄膀x${p2}`);
-        if(p3 > 0) summary.push(`豬腳x${p3}`);
-        if(p4 > 0) summary.push(`筍干x${p4}`);
-        if(p5 > 0) summary.push(`加購腳蹄x${p5}`);
+        items.forEach(item => {
+            let val = parseInt(document.getElementById(item.id).value) || 0;
+            if (val > 0) {
+                // 如果 Excel 有名字就用 Excel 的，不然用預設的
+                let displayName = (GLOBAL_MENU[item.id]) ? GLOBAL_MENU[item.id].name : item.name;
+                summary.push(`${displayName}x${val}`);
+            }
+        });
 
         let displayDiv = document.getElementById('summaryDisplay');
         if (summary.length > 0) {
@@ -470,14 +393,11 @@
         let userPhone = document.getElementById('userPhone').value;
         let noteInput = document.getElementById('note').value;
         
-        // ★ 修正：先取得元件，再取值
         let pickupDateSelect = document.getElementById('pickupDate'); 
         let pickupDate = pickupDateSelect.value;
         
-        // 驗證
         if (!pickupDate) { alert("請選擇預定取貨日期喔！📅"); pickupDateSelect.focus(); return; }
 
-        // ★★★ 防呆檢查：檢查是否額滿 ★★★
         let selectedOptionText = pickupDateSelect.options[pickupDateSelect.selectedIndex].text;
         if (selectedOptionText.includes("(已額滿)") || selectedOptionText.includes("(已截止)")) {
             alert("抱歉！該日期已額滿或截止，無法下單 😭");
@@ -503,13 +423,30 @@
             note: noteInput
         };
 
+        // ★★★ 使用 Excel 的價格來產生存根聯 ★★★
         let receiptItems = [];
-        if(qty_pork > 0) receiptItems.push(`封肉 x${qty_pork} (約$${250*qty_pork}~$${350*qty_pork})`);
-        if(qty_thigh > 0) receiptItems.push(`蹄膀 x${qty_thigh} (約$${350*qty_thigh}~$${450*qty_thigh})`);
-        if(qty_feet > 0) receiptItems.push(`綜合豬腳 x${qty_feet} (約$${500*qty_feet})`);
-        if(qty_bamboo > 0) receiptItems.push(`筍干 x${qty_bamboo} ($${50*qty_bamboo})`);
-        if(qty_extra > 0) receiptItems.push(`加購腳蹄 x${qty_extra} ($${100*qty_extra})`);
+        let itemsToCheck = ['qty_pork', 'qty_thigh', 'qty_feet', 'qty_bamboo', 'qty_extra'];
         
+        itemsToCheck.forEach(key => {
+            let qty = parseInt(document.getElementById(key).value) || 0;
+            if (qty > 0) {
+                // 從全域變數抓 Excel 的設定
+                let itemData = GLOBAL_MENU[key];
+                if (itemData) {
+                    let priceStr = "";
+                    if (itemData.min === itemData.max) {
+                        priceStr = `$${itemData.min * qty}`;
+                    } else {
+                        priceStr = `約$${itemData.min * qty}~$${itemData.max * qty}`;
+                    }
+                    receiptItems.push(`${itemData.name} x${qty} (${priceStr})`);
+                } else {
+                    // 萬一 Excel 沒載入成功，至少顯示數量
+                    receiptItems.push(`品項(${key}) x${qty}`);
+                }
+            }
+        });
+
         let receiptText = `【阿珍封肉 - 訂購成功】\n` +
                           `📅 取貨日期：${pickupDate}\n` +
                           `👤 取貨人：${manualName}\n` +
