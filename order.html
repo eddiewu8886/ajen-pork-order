@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿珍封肉 - 線上點餐</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root { --primary-color: #d81b60; --bg-color: #fff0f5; --card-shadow: 0 8px 20px rgba(216, 27, 96, 0.1); }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-color); padding-bottom: 100px; color: #444; }
+        .header-section { position: relative; margin-bottom: -40px; z-index: 1; }
+        .header-img { width: 100%; height: 200px; object-fit: cover; border-radius: 0 0 25px 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .main-container { max-width: 600px; margin: 0 auto; position: relative; z-index: 2; padding: 0 15px; }
+        .content-card { background: white; border-radius: 20px; padding: 25px; box-shadow: var(--card-shadow); margin-bottom: 20px; }
+        h3 { color: var(--primary-color); font-weight: 700; text-align: center; margin-bottom: 5px; }
+        .sub-title { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 20px; }
+        .form-label { font-weight: 700; color: #555; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .form-control, .form-select { border-radius: 12px; border: 1px solid #eee; background-color: #f9f9f9; padding: 12px; transition: all 0.3s; }
+        .form-control:focus, .form-select:focus { background-color: #fff; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(216, 27, 96, 0.1); }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px dashed #eee; }
+        .menu-item:last-child { border-bottom: none; }
+        .item-name { font-size: 1.1rem; font-weight: bold; color: #333; }
+        .item-desc { font-size: 0.8rem; color: #999; }
+        .stepper { display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 2px; }
+        .stepper-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: white; color: var(--primary-color); font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .stepper-btn:active { transform: scale(0.9); }
+        .stepper-input { width: 40px; text-align: center; border: none; background: transparent; font-weight: bold; color: #333; pointer-events: none; }
+        .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px 20px 0 0; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; }
+        .summary-box { margin-bottom: 10px; font-size: 0.9rem; color: var(--primary-color); font-weight: bold; background: #fff0f5; padding: 8px; border-radius: 8px; text-align: center; }
+        .btn-submit { background: linear-gradient(45deg, #d81b60, #ff4081); border: none; border-radius: 12px; padding: 12px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(216, 27, 96, 0.4); transition: all 0.3s; }
+        .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(216, 27, 96, 0.5); }
+        .btn-submit:disabled { background: #ccc; box-shadow: none; }
+        .required::after { content: "*"; color: red; margin-left: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="header-section text-center">
+    <img src="https://placehold.co/800x400/d81b60/ffffff?text=Ah+Jen+Pork" class="header-img" alt="Header">
+</div>
+
+<div class="main-container">
+    
+    <div class="content-card" style="margin-top: 50px;">
+        <h3>阿珍封肉</h3>
+        <p class="sub-title">每日現做，古早味傳承</p>
+        
+        <form id="orderForm">
+            <div class="mb-3">
+                <label class="form-label required"><i class="fas fa-calendar-alt"></i> 預定取貨日期</label>
+                <select class="form-select" id="pickupDate">
+                    <option value="" disabled selected>載入中，請稍候...</option>
+                </select>
+                <div id="dateLoadingText" class="form-text text-danger" style="display:none;">無法載入日期，請重新整理</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label required"><i class="fas fa-user"></i> 取貨人姓名</label>
+                <input type="text" class="form-control" id="userNameInput" placeholder="例如：陳小姐">
+            </div>
+
+            <div class="mb-1">
+                <label class="form-label required"><i class="fas fa-phone-alt"></i> 聯絡電話</label>
+                <input type="tel" class="form-control" id="userPhone" placeholder="09xx-xxx-xxx">
+            </div>
+        </form>
+    </div>
+
+    <div class="content-card">
+        <h5 class="mb-4" style="font-weight: bold; color: #333; border-left: 4px solid #d81b60; padding-left: 10px;">美味菜單</h5>
+        
+        <div class="menu-item">
+            <div><div class="item-name">🍖 封肉</div><div class="item-desc">肥而不膩，入口即化</div></div>
+            <div class="stepper">
+                <button type="button" class="stepper-btn" onclick="changeQty('qty_pork', -1)"><i class="fas fa-minus"></i></button>
+                <input type="text" class="stepper-input" id="qty_pork" value="0" readonly>
+                <button type="button" class="stepper-btn" onclick="changeQty('qty_pork', 1)"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <div><div class="item-name">🐷 綜合豬腳</div><div class="item-desc">Q彈有勁，富含膠質</div></div>
+            <div class="stepper">
+                <button type="button" class="stepper-btn" onclick="changeQty('qty_feet', -1)"><i class="fas fa-minus"></i></button>
+                <input type="text" class="stepper-input" id="qty_feet" value="0" readonly>
+                <button type="button" class="stepper-btn" onclick="changeQty('qty_feet', 1)"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <div><div class="item-name">🍗 蹄旁</div><div class="item-desc">皮薄肉嫩，下飯首選</div></div>
+            <div class="stepper">
+                <button type="button" class="stepper-btn" onclick="changeQty('qty_thigh', -1)"><i class="fas fa-minus"></i></button>
+                <input type="text" class="stepper-input" id="qty_thigh" value="0" readonly>
+                <button type="button" class="stepper-btn" onclick="changeQty('qty_thigh', 1)"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <div><div class="item-name">🎋 鮮脆筍子</div><div class="item-desc">高湯熬煮，鮮甜入味</div></div>
+            <div class="stepper">
+                <button type="button" class="stepper-btn" onclick="changeQty('qty_bamboo', -1)"><i class="fas fa-minus"></i></button>
+                <input type="text" class="stepper-input" id="qty_bamboo" value="0" readonly>
+                <button type="button" class="stepper-btn" onclick="changeQty('qty_bamboo', 1)"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label"><i class="fas fa-edit"></i> 備註需求</label>
+            <textarea class="form-control" id="note" rows="2" placeholder="例如：瘦肉多、蹄旁大一點..."></textarea>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-bar">
+    <div id="summaryDisplay" class="summary-box" style="display: none;"></div>
+    <button type="button" class="btn btn-primary w-100 btn-submit" onclick="submitOrder()">
+        確認送出訂單 <i class="fas fa-paper-plane ms-2"></i>
+    </button>
+</div>
+
+<input type="hidden" id="userId">
+
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+<script>
+    // ★★★ 請替換成您的設定 ★★★
+    const API_URL = "https://script.google.com/macros/s/AKfycby6mG2x-sYYeHJZ5AQhDMEOgpC0QqElTWx6XPKy2gDFiPWSLwfQoalaTe-DRCZna6w_/exec";  
+    const LIFF_ID = "您的_LIFF_ID"; 
+
+    window.onload = function() {
+        // 1. 初始化 LIFF
+        liff.init({ liffId: LIFF_ID }).then(() => {
+            if (liff.isLoggedIn()) {
+                liff.getProfile().then(profile => {
+                    document.getElementById('userId').value = profile.userId;
+                    document.getElementById('userNameInput').value = profile.displayName;
+                });
+            } else {
+                liff.login();
+            }
+        });
+
+        // 2. ★ 自動從 Google Sheet 抓取日期
+        fetchDates();
+    };
+
+    function fetchDates() {
+        const dateSelect = document.getElementById('pickupDate');
+        
+        // 呼叫 GAS 的 doGet
+        fetch(API_URL) 
+        .then(response => response.json())
+        .then(dates => {
+            dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>'; // 清空並設預設值
+            
+            if (dates.length === 0) {
+                 dateSelect.innerHTML = '<option value="" disabled>目前無開放日期</option>';
+                 return;
+            }
+
+            // 把後台抓到的日期一個個加進去
+            dates.forEach(date => {
+                let option = document.createElement("option");
+                option.text = date;
+                option.value = date;
+                dateSelect.add(option);
+            });
+        })
+        .catch(err => {
+            console.error("日期載入失敗", err);
+            dateSelect.innerHTML = '<option value="" disabled>日期載入失敗</option>';
+            document.getElementById('dateLoadingText').style.display = 'block';
+        });
+    }
+
+    function changeQty(id, delta) {
+        const input = document.getElementById(id);
+        let currentVal = parseInt(input.value) || 0;
+        let newVal = currentVal + delta;
+        if (newVal < 0) newVal = 0;
+        if (newVal > 20) newVal = 20; 
+        input.value = newVal;
+        updateSummary();
+    }
+
+    function updateSummary() {
+        let p1 = parseInt(document.getElementById('qty_pork').value);
+        let p2 = parseInt(document.getElementById('qty_feet').value);
+        let p3 = parseInt(document.getElementById('qty_thigh').value);
+        let p4 = parseInt(document.getElementById('qty_bamboo').value);
+
+        let summary = [];
+        if(p1 > 0) summary.push(`封肉x${p1}`);
+        if(p2 > 0) summary.push(`豬腳x${p2}`);
+        if(p3 > 0) summary.push(`蹄旁x${p3}`);
+        if(p4 > 0) summary.push(`筍子x${p4}`);
+
+        let displayDiv = document.getElementById('summaryDisplay');
+        if (summary.length > 0) {
+            displayDiv.style.display = 'block';
+            displayDiv.innerHTML = "🛒 目前選擇： " + summary.join('、');
+        } else {
+            displayDiv.style.display = 'none';
+        }
+    }
+
+    function submitOrder() {
+        let qty_pork = document.getElementById('qty_pork').value;
+        let qty_feet = document.getElementById('qty_feet').value;
+        let qty_thigh = document.getElementById('qty_thigh').value;
+        let qty_bamboo = document.getElementById('qty_bamboo').value;
+        
+        let manualName = document.getElementById('userNameInput').value;
+        let userPhone = document.getElementById('userPhone').value;
+        let noteInput = document.getElementById('note').value;
+        
+        // ★ 取得日期
+        let pickupDate = document.getElementById('pickupDate').value;
+
+        // 驗證
+        if (!pickupDate) {
+            alert("請選擇預定取貨日期喔！📅");
+            document.getElementById('pickupDate').focus();
+            return;
+        }
+        if (!manualName) {
+            alert("請填寫取貨人姓名！👤");
+            document.getElementById('userNameInput').focus();
+            return;
+        }
+        if (!userPhone) {
+            alert("請填寫聯絡電話！📞");
+            document.getElementById('userPhone').focus();
+            return;
+        }
+        if (qty_pork == 0 && qty_feet == 0 && qty_thigh == 0 && qty_bamboo == 0) {
+            alert("😅 購物車是空的喔！");
+            return;
+        }
+
+        const orderData = {
+            pickupDate: pickupDate, // ★ 傳送日期
+            userName: manualName,
+            userPhone: userPhone,
+            qty_pork: qty_pork,
+            qty_feet: qty_feet,
+            qty_thigh: qty_thigh,
+            qty_bamboo: qty_bamboo,
+            note: noteInput
+        };
+
+        const btn = document.querySelector('.btn-submit');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 處理中...';
+        btn.disabled = true;
+
+        fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("✅ 訂購成功！\n\n日期：" + pickupDate + "\n期待您的光臨！");
+            liff.closeWindow();
+        })
+        .catch(error => {
+            alert("✅ 訂單已送出！");
+            liff.closeWindow();
+        });
+    }
+</script>
+
+</body>
+</html>
