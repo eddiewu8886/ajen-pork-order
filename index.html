@@ -347,30 +347,54 @@
         checkAddonAvailability();
     };
 
-	function initSystem() {
+    function initSystem() {
         const dateSelect = document.getElementById('pickupDate');
         
         fetch(API_URL) 
         .then(response => response.json())
         .then(data => {
-            // ... (原本處理日期的程式碼保持不變) ...
+            // --- 1. 處理日期 ---
             if (data.dates.length === 0) {
                  // 如果沒日期，顯示打烊，並隱藏骨架屏
                  document.getElementById('closedOverlay').style.display = 'block';
                  document.getElementById('closedReason').innerText = "目前無開放日期，請稍後再來！";
-                 document.getElementById('skeletonOverlay').style.display = 'none'; // ★ 隱藏骨架
+                 document.getElementById('skeletonOverlay').style.display = 'none'; // 隱藏骨架
                  return;
             } else {
                  document.getElementById('closedOverlay').style.display = 'none';
-                 // ... (原本加入 option 的程式碼) ...
+                 
+                 // ★★★ 關鍵修正：先清空原本的「載入中...」，改成「請選擇」 ★★★
+                 dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
+                 
+                 // 把後端抓到的日期一個一個塞進去
+                 data.dates.forEach(item => {
+                    let option = document.createElement("option");
+                    option.value = item.value; 
+                    option.text = item.text;   
+                    if (item.disabled) option.disabled = true; 
+                    dateSelect.add(option);
+                });
             }
 
-            // ... (原本處理菜單價格的程式碼保持不變) ...
+            // --- 2. 處理菜單價格 ---
+            // ★★★ 關鍵修正：這裡原本被省略了，必須補回來才能更新價格 ★★★
             if (data.menu) {
-                // ... (略) ...
+                GLOBAL_MENU = data.menu; // 存到全域變數
+                
+                // 自動更新網頁上的價格顯示，把「載入中...」換成「$350」
+                for (const [key, item] of Object.entries(GLOBAL_MENU)) {
+                    let priceDiv = document.getElementById('price_' + key);
+                    if (priceDiv) {
+                        if (item.min === item.max) {
+                            priceDiv.innerText = `$${item.min} / 份`;
+                        } else {
+                            priceDiv.innerText = `$${item.min} ~ $${item.max} / 份`;
+                        }
+                    }
+                }
             }
 
-            // ★★★ 關鍵：資料全部處理好後，隱藏骨架屏，顯示真內容 ★★★
+            // --- 3. 全部更新完畢，移除骨架屏 ---
             // 加一點點延遲(300ms)讓轉換更平滑，不會閃一下
             setTimeout(() => {
                 document.getElementById('skeletonOverlay').style.display = 'none';
@@ -379,7 +403,7 @@
         .catch(err => {
             console.error("載入失敗", err);
             dateSelect.innerHTML = '<option value="" disabled>載入失敗，請重新整理</option>';
-            // ★ 發生錯誤也要把骨架關掉，不然客人會卡在假畫面
+            // 發生錯誤也要把骨架關掉，不然客人會卡在假畫面
             document.getElementById('skeletonOverlay').style.display = 'none';
         });
     }
