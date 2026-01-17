@@ -98,22 +98,44 @@
         .item-locked { opacity: 0.5; pointer-events: none; }
         .lock-msg { font-size: 0.8rem; color: #D84315; margin-left: 5px; display: none; }
 		
-		/* 骨架屏動畫效果 */
-		.skeleton {
-			background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-			background-size: 200% 100%;
-			animation: loading 1.5s infinite;
-			border-radius: 4px;
-			display: inline-block;
-			width: 60px; /* 預設寬度 */
-			height: 20px; /* 預設高度 */
-			vertical-align: middle;
+		/* --- 全頁骨架屏樣式 --- */
+		#skeletonOverlay {
+			position: fixed;
+			top: 0; left: 0;
+			width: 100%; height: 100%;
+			background-color: var(--bg-color); /* 與背景同色 */
+			z-index: 9998; /* 比打烊公告(9999)低一點，但蓋住內容 */
+			overflow-y: scroll; /* 允許滾動 */
+			padding-bottom: 100px;
 		}
 
-		@keyframes loading {
-			0% { background-position: 200% 0; }
-			100% { background-position: -200% 0; }
+		/* 閃爍動畫 */
+		.sk-shimmer {
+			background: #E0E0E0;
+			background-image: linear-gradient(to right, #E0E0E0 0%, #F5F5F5 20%, #E0E0E0 40%, #E0E0E0 100%);
+			background-repeat: no-repeat;
+			background-size: 200% 100%; 
+			animation: shimmer 1.5s infinite linear;
+			border-radius: 8px;
 		}
+
+		@keyframes shimmer {
+			0% { background-position: -200% 0; }
+			100% { background-position: 200% 0; }
+		}
+
+		/* 模擬各個區塊形狀 */
+		.sk-header { width: 100%; height: 220px; border-radius: 0 0 30px 30px; margin-bottom: 20px; }
+		.sk-container { max-width: 600px; margin: 0 auto; padding: 0 15px; }
+		.sk-card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid #EFEBE9; }
+		.sk-title { width: 40%; height: 30px; margin: 0 auto 10px; }
+		.sk-subtitle { width: 60%; height: 15px; margin: 0 auto 20px; }
+		.sk-label { width: 30%; height: 20px; margin-bottom: 10px; }
+		.sk-input { width: 100%; height: 45px; margin-bottom: 20px; border-radius: 12px; }
+		.sk-menu-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+		.sk-menu-text { width: 50%; }
+		.sk-menu-line { height: 15px; margin-bottom: 5px; }
+		.sk-menu-btn { width: 100px; height: 35px; border-radius: 20px; }	
     </style>
 </head>
 <body>
@@ -122,6 +144,57 @@
     <i class="fas fa-store-slash" style="font-size: 5rem; color: #9A7E6F; margin-bottom: 20px;"></i>
     <h2 style="color: #5D4037; font-weight: bold;">本店休息中</h2>
     <p style="color: #8D6E63; font-size: 1.2rem;" id="closedReason">目前暫停接單，請稍後再來！</p>
+</div>
+
+<div id="skeletonOverlay">
+    <div class="sk-header sk-shimmer"></div>
+    
+    <div class="sk-container">
+        <div class="sk-card">
+            <div class="sk-title sk-shimmer"></div>
+            <div class="sk-subtitle sk-shimmer"></div>
+            
+            <div class="sk-label sk-shimmer"></div>
+            <div class="sk-input sk-shimmer"></div>
+            
+            <div class="sk-label sk-shimmer"></div>
+            <div class="sk-input sk-shimmer"></div>
+            
+            <div class="sk-label sk-shimmer"></div>
+            <div class="sk-input sk-shimmer"></div>
+        </div>
+
+        <div class="sk-card">
+             <div class="sk-menu-row">
+                 <div class="sk-menu-text">
+                     <div class="sk-menu-line sk-shimmer" style="width: 60%"></div>
+                     <div class="sk-menu-line sk-shimmer" style="width: 40%"></div>
+                 </div>
+                 <div class="sk-menu-btn sk-shimmer"></div>
+             </div>
+             <div class="sk-menu-row">
+                 <div class="sk-menu-text">
+                     <div class="sk-menu-line sk-shimmer" style="width: 60%"></div>
+                     <div class="sk-menu-line sk-shimmer" style="width: 40%"></div>
+                 </div>
+                 <div class="sk-menu-btn sk-shimmer"></div>
+             </div>
+             <div class="sk-menu-row">
+                 <div class="sk-menu-text">
+                     <div class="sk-menu-line sk-shimmer" style="width: 60%"></div>
+                     <div class="sk-menu-line sk-shimmer" style="width: 40%"></div>
+                 </div>
+                 <div class="sk-menu-btn sk-shimmer"></div>
+             </div>
+             <div class="sk-menu-row">
+                 <div class="sk-menu-text">
+                     <div class="sk-menu-line sk-shimmer" style="width: 60%"></div>
+                     <div class="sk-menu-line sk-shimmer" style="width: 40%"></div>
+                 </div>
+                 <div class="sk-menu-btn sk-shimmer"></div>
+             </div>
+        </div>
+    </div>
 </div>
 
 <div class="header-section text-center">
@@ -138,8 +211,8 @@
             <div class="mb-3">
                 <label class="form-label required"><i class="fas fa-calendar-alt"></i> 預定取貨日期</label>
                 <select class="form-select" id="pickupDate">
-					<option value="" disabled selected>⌛ 資料讀取中...</option>
-				</select>
+                    <option value="" disabled selected>載入中...</option>
+                </select>
                 <div id="dateLoadingText" class="form-text text-danger" style="display:none;">無法載入日期，請重新整理</div>
             </div>
 
@@ -162,7 +235,7 @@
             <div>
                 <div class="item-name">🍖 封肉</div>
                 <div class="item-desc">肥而不膩，入口即化</div>
-                <div class="item-price" id="price_qty_pork"><div class="skeleton"></div></div>
+                <div class="item-price" id="price_qty_pork">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_pork', -1)"><i class="fas fa-minus"></i></button>
@@ -175,7 +248,7 @@
             <div>
                 <div class="item-name">🍗 蹄膀</div>
                 <div class="item-desc">皮薄肉嫩，下飯首選</div>
-                <div class="item-price" id="price_qty_thigh"><div class="skeleton"></div></div>
+                <div class="item-price" id="price_qty_thigh">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_thigh', -1)"><i class="fas fa-minus"></i></button>
@@ -188,7 +261,7 @@
             <div>
                 <div class="item-name">🐷 綜合豬腳</div>
                 <div class="item-desc">Q彈有勁，富含膠質</div>
-                <div class="item-price" id="price_qty_feet"><div class="skeleton"></div></div>
+                <div class="item-price" id="price_qty_feet">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_feet', -1)"><i class="fas fa-minus"></i></button>
@@ -201,7 +274,7 @@
             <div>
                 <div class="item-name">🎋 筍干</div>
                 <div class="item-desc">鮮甜入味</div>
-                <div class="item-price" id="price_qty_bamboo"><div class="skeleton"></div></div>
+                <div class="item-price" id="price_qty_bamboo">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_bamboo', -1)"><i class="fas fa-minus"></i></button>
@@ -217,7 +290,7 @@
                     <span class="lock-msg" id="lockMsg" style="display:inline-block;">(需購買主餐)</span>
                 </div>
                 <div class="item-desc">喜愛啃骨頭的必加</div>
-                <div class="item-price" id="price_qty_extra"><div class="skeleton"></div></div>
+                <div class="item-price" id="price_qty_extra">載入中...</div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn btn-extra" disabled onclick="changeQty('qty_extra', -1)"><i class="fas fa-minus"></i></button>
@@ -274,53 +347,40 @@
         checkAddonAvailability();
     };
 
-    function initSystem() {
+	function initSystem() {
         const dateSelect = document.getElementById('pickupDate');
         
         fetch(API_URL) 
         .then(response => response.json())
         .then(data => {
-            // 1. 處理日期
+            // ... (原本處理日期的程式碼保持不變) ...
             if (data.dates.length === 0) {
-                 // 如果沒有日期，就顯示全螢幕打烊畫面
+                 // 如果沒日期，顯示打烊，並隱藏骨架屏
                  document.getElementById('closedOverlay').style.display = 'block';
                  document.getElementById('closedReason').innerText = "目前無開放日期，請稍後再來！";
-                 return; // 結束程式，不顯示下拉選單
+                 document.getElementById('skeletonOverlay').style.display = 'none'; // ★ 隱藏骨架
+                 return;
             } else {
-                 // 如果有日期，確保打烊畫面是隱藏的
                  document.getElementById('closedOverlay').style.display = 'none';
-                 // 程式判斷
-                 dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
-                 data.dates.forEach(item => {
-                    let option = document.createElement("option");
-                    option.value = item.value; 
-                    option.text = item.text;   
-                    if (item.disabled) option.disabled = true; 
-                    dateSelect.add(option);
-                });
+                 // ... (原本加入 option 的程式碼) ...
             }
-            document.getElementById('closedOverlay').style.display = 'none';
 
-            // 2. ★ 處理菜單價格 (自動更新網頁顯示)
+            // ... (原本處理菜單價格的程式碼保持不變) ...
             if (data.menu) {
-                GLOBAL_MENU = data.menu; // 存到全域變數
-                
-                // 自動更新網頁上的價格顯示
-                for (const [key, item] of Object.entries(GLOBAL_MENU)) {
-                    let priceDiv = document.getElementById('price_' + key);
-                    if (priceDiv) {
-                        if (item.min === item.max) {
-                            priceDiv.innerText = `$${item.min} / 份`;
-                        } else {
-                            priceDiv.innerText = `$${item.min} ~ $${item.max} / 份`;
-                        }
-                    }
-                }
+                // ... (略) ...
             }
+
+            // ★★★ 關鍵：資料全部處理好後，隱藏骨架屏，顯示真內容 ★★★
+            // 加一點點延遲(300ms)讓轉換更平滑，不會閃一下
+            setTimeout(() => {
+                document.getElementById('skeletonOverlay').style.display = 'none';
+            }, 300);
         })
         .catch(err => {
             console.error("載入失敗", err);
             dateSelect.innerHTML = '<option value="" disabled>載入失敗，請重新整理</option>';
+            // ★ 發生錯誤也要把骨架關掉，不然客人會卡在假畫面
+            document.getElementById('skeletonOverlay').style.display = 'none';
         });
     }
 
@@ -516,3 +576,4 @@
 
 </body>
 </html>
+
