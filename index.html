@@ -97,6 +97,23 @@
         .required::after { content: "*"; color: #D84315; margin-left: 3px; }
         .item-locked { opacity: 0.5; pointer-events: none; }
         .lock-msg { font-size: 0.8rem; color: #D84315; margin-left: 5px; display: none; }
+		
+		/* 骨架屏動畫效果 */
+		.skeleton {
+			background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+			background-size: 200% 100%;
+			animation: loading 1.5s infinite;
+			border-radius: 4px;
+			display: inline-block;
+			width: 60px; /* 預設寬度 */
+			height: 20px; /* 預設高度 */
+			vertical-align: middle;
+		}
+
+		@keyframes loading {
+			0% { background-position: 200% 0; }
+			100% { background-position: -200% 0; }
+		}
     </style>
 </head>
 <body>
@@ -121,8 +138,8 @@
             <div class="mb-3">
                 <label class="form-label required"><i class="fas fa-calendar-alt"></i> 預定取貨日期</label>
                 <select class="form-select" id="pickupDate">
-                    <option value="" disabled selected>載入中...</option>
-                </select>
+					<option value="" disabled selected>⌛ 資料讀取中...</option>
+				</select>
                 <div id="dateLoadingText" class="form-text text-danger" style="display:none;">無法載入日期，請重新整理</div>
             </div>
 
@@ -145,7 +162,7 @@
             <div>
                 <div class="item-name">🍖 封肉</div>
                 <div class="item-desc">肥而不膩，入口即化</div>
-                <div class="item-price" id="price_qty_pork">載入中...</div>
+                <div class="item-price" id="price_qty_pork"><div class="skeleton"></div></div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_pork', -1)"><i class="fas fa-minus"></i></button>
@@ -158,7 +175,7 @@
             <div>
                 <div class="item-name">🍗 蹄膀</div>
                 <div class="item-desc">皮薄肉嫩，下飯首選</div>
-                <div class="item-price" id="price_qty_thigh">載入中...</div>
+                <div class="item-price" id="price_qty_thigh"><div class="skeleton"></div></div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_thigh', -1)"><i class="fas fa-minus"></i></button>
@@ -171,7 +188,7 @@
             <div>
                 <div class="item-name">🐷 綜合豬腳</div>
                 <div class="item-desc">Q彈有勁，富含膠質</div>
-                <div class="item-price" id="price_qty_feet">載入中...</div>
+                <div class="item-price" id="price_qty_feet"><div class="skeleton"></div></div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_feet', -1)"><i class="fas fa-minus"></i></button>
@@ -184,7 +201,7 @@
             <div>
                 <div class="item-name">🎋 筍干</div>
                 <div class="item-desc">鮮甜入味</div>
-                <div class="item-price" id="price_qty_bamboo">載入中...</div>
+                <div class="item-price" id="price_qty_bamboo"><div class="skeleton"></div></div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn" onclick="changeQty('qty_bamboo', -1)"><i class="fas fa-minus"></i></button>
@@ -200,7 +217,7 @@
                     <span class="lock-msg" id="lockMsg" style="display:inline-block;">(需購買主餐)</span>
                 </div>
                 <div class="item-desc">喜愛啃骨頭的必加</div>
-                <div class="item-price" id="price_qty_extra">載入中...</div>
+                <div class="item-price" id="price_qty_extra"><div class="skeleton"></div></div>
             </div>
             <div class="stepper">
                 <button type="button" class="stepper-btn btn-extra" disabled onclick="changeQty('qty_extra', -1)"><i class="fas fa-minus"></i></button>
@@ -499,4 +516,3 @@
 
 </body>
 </html>
-
