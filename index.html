@@ -7,6 +7,7 @@
     
     <meta property="og:title" content="阿珍封肉 - 線上點餐" />
     <meta property="og:description" content="每日現做・古早味傳承。歡迎線上預訂美味封肉、蹄膀！" />
+    <meta property="og:image" content="https://eddlewu8886.github.io/ajen-pork-order/banner.png" /> 
     <meta property="og:url" content="https://liff.line.me/2008905608-DekFDzvW" />
     <meta property="og:type" content="website" />
 
@@ -61,9 +62,13 @@
         .form-control, .form-select { border-radius: 12px; border: 1px solid #D7CCC8; background-color: #FAFAFA; padding: 12px; color: var(--text-dark); }
         .form-control:focus, .form-select:focus { background-color: #fff; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(154, 126, 111, 0.1); }
 
-        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px dashed #D7CCC8; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px dashed #D7CCC8; transition: all 0.3s; }
         .menu-item:last-child { border-bottom: none; }
         
+        /* 售完樣式 */
+        .item-sold-out { opacity: 0.6; pointer-events: none; filter: grayscale(100%); }
+        .badge-sold-out { background-color: #9e9e9e; color: white; font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+
         .item-name { font-size: 1.15rem; font-weight: bold; color: var(--text-dark); }
         .item-desc { font-size: 0.85rem; color: #9E9E9E; margin-bottom: 2px;}
         .item-price { 
@@ -114,13 +119,12 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background-color: var(--bg-color); /* 與背景同色 */
-            z-index: 9998; /* 比打烊公告(9999)低一點，但蓋住內容 */
-            overflow-y: scroll; /* 允許滾動 */
+            background-color: var(--bg-color); 
+            z-index: 9998; 
+            overflow-y: scroll; 
             padding-bottom: 100px;
         }
 
-        /* 閃爍動畫 */
         .sk-shimmer {
             background: #E0E0E0;
             background-image: linear-gradient(to right, #E0E0E0 0%, #F5F5F5 20%, #E0E0E0 40%, #E0E0E0 100%);
@@ -135,7 +139,6 @@
             100% { background-position: 200% 0; }
         }
 
-        /* 模擬各個區塊形狀 */
         .sk-header { width: 100%; height: 220px; border-radius: 0 0 30px 30px; margin-bottom: 20px; }
         .sk-container { max-width: 600px; margin: 0 auto; padding: 0 15px; }
         .sk-card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid #EFEBE9; }
@@ -159,51 +162,22 @@
 
 <div id="skeletonOverlay">
     <div class="sk-header sk-shimmer"></div>
-    
     <div class="sk-container">
         <div class="sk-card">
             <div class="sk-title sk-shimmer"></div>
             <div class="sk-subtitle sk-shimmer"></div>
-            
             <div class="sk-label sk-shimmer"></div>
             <div class="sk-input sk-shimmer"></div>
-            
             <div class="sk-label sk-shimmer"></div>
             <div class="sk-input sk-shimmer"></div>
-            
             <div class="sk-label sk-shimmer"></div>
             <div class="sk-input sk-shimmer"></div>
         </div>
-
         <div class="sk-card">
-             <div class="sk-menu-row">
-                 <div class="sk-menu-text">
-                     <div class="sk-menu-line sk-shimmer" style="width: 60%"></div>
-                     <div class="sk-menu-line sk-shimmer" style="width: 40%"></div>
-                 </div>
-                 <div class="sk-menu-btn sk-shimmer"></div>
-             </div>
-             <div class="sk-menu-row">
-                 <div class="sk-menu-text">
-                     <div class="sk-menu-line sk-shimmer" style="width: 60%"></div>
-                     <div class="sk-menu-line sk-shimmer" style="width: 40%"></div>
-                 </div>
-                 <div class="sk-menu-btn sk-shimmer"></div>
-             </div>
-             <div class="sk-menu-row">
-                 <div class="sk-menu-text">
-                     <div class="sk-menu-line sk-shimmer" style="width: 60%"></div>
-                     <div class="sk-menu-line sk-shimmer" style="width: 40%"></div>
-                 </div>
-                 <div class="sk-menu-btn sk-shimmer"></div>
-             </div>
-             <div class="sk-menu-row">
-                 <div class="sk-menu-text">
-                     <div class="sk-menu-line sk-shimmer" style="width: 60%"></div>
-                     <div class="sk-menu-line sk-shimmer" style="width: 40%"></div>
-                 </div>
-                 <div class="sk-menu-btn sk-shimmer"></div>
-             </div>
+             <div class="sk-menu-row"><div class="sk-menu-text"><div class="sk-menu-line sk-shimmer" style="width: 60%"></div><div class="sk-menu-line sk-shimmer" style="width: 40%"></div></div><div class="sk-menu-btn sk-shimmer"></div></div>
+             <div class="sk-menu-row"><div class="sk-menu-text"><div class="sk-menu-line sk-shimmer" style="width: 60%"></div><div class="sk-menu-line sk-shimmer" style="width: 40%"></div></div><div class="sk-menu-btn sk-shimmer"></div></div>
+             <div class="sk-menu-row"><div class="sk-menu-text"><div class="sk-menu-line sk-shimmer" style="width: 60%"></div><div class="sk-menu-line sk-shimmer" style="width: 40%"></div></div><div class="sk-menu-btn sk-shimmer"></div></div>
+             <div class="sk-menu-row"><div class="sk-menu-text"><div class="sk-menu-line sk-shimmer" style="width: 60%"></div><div class="sk-menu-line sk-shimmer" style="width: 40%"></div></div><div class="sk-menu-btn sk-shimmer"></div></div>
         </div>
     </div>
 </div>
@@ -242,7 +216,7 @@
     <div class="content-card">
         <h5 class="mb-4" style="font-weight: bold; color: var(--text-dark); border-left: 5px solid var(--primary-color); padding-left: 12px;">美味菜單</h5>
         
-        <div class="menu-item">
+        <div class="menu-item" id="item_qty_pork">
             <div>
                 <div class="item-name">🍖 封肉</div>
                 <div class="item-desc">肥而不膩，入口即化</div>
@@ -255,7 +229,7 @@
             </div>
         </div>
 
-        <div class="menu-item">
+        <div class="menu-item" id="item_qty_thigh">
             <div>
                 <div class="item-name">🍗 蹄膀</div>
                 <div class="item-desc">皮薄肉嫩，下飯首選</div>
@@ -268,7 +242,7 @@
             </div>
         </div>
 
-        <div class="menu-item">
+        <div class="menu-item" id="item_qty_feet">
             <div>
                 <div class="item-name">🐷 綜合豬腳</div>
                 <div class="item-desc">Q彈有勁，富含膠質</div>
@@ -281,7 +255,7 @@
             </div>
         </div>
 
-        <div class="menu-item">
+        <div class="menu-item" id="item_qty_bamboo">
             <div>
                 <div class="item-name">🎋 筍干</div>
                 <div class="item-desc">鮮甜入味</div>
@@ -297,7 +271,7 @@
         <div class="menu-item" id="row_extra" style="opacity: 0.6; transition: all 0.3s;">
             <div>
                 <div class="item-name">
-                    🦴 加購腳蹄(已額滿-暫停加購)
+                    🦴 加購腳蹄 
                     <span class="lock-msg" id="lockMsg" style="display:inline-block;">(需購買主餐)</span>
                 </div>
                 <div class="item-desc">喜愛啃骨頭的必加</div>
@@ -334,10 +308,9 @@
 
 <script>
     // ★★★ 請替換成您的設定 ★★★
-    const API_URL = "https://script.google.com/macros/s/AKfycbwEcfD-U0gUFQtBvL2WgQfh6gQIaMekVYOyUOimwvYFVcNN6QGv9KjRuM4NrFWIEFqf/exec";  
+    const API_URL = "https://script.google.com/macros/s/AKfycbxz1Yld5egTNPE-s9SDaA8Mjs-hoH_ihI2j24PgtGwdZ96y6Oubf2vjsHtDJzhr7elN/exec";  
     const LIFF_ID = "2008905608-DekFDzvW"; 
     
-    // 全域變數：儲存從 Excel 抓下來的菜單價格
     let GLOBAL_MENU = {};
 
     window.onload = function() {
@@ -351,10 +324,8 @@
                 liff.login();
             }
         });
-        
-        // 初始化系統 (抓日期 + 抓菜單)
+
         initSystem();
-        
         checkAddonAvailability();
     };
 
@@ -366,18 +337,15 @@
         .then(data => {
             // --- 1. 處理日期 ---
             if (data.dates.length === 0) {
-                 // 如果沒日期，顯示打烊，並隱藏骨架屏
                  document.getElementById('closedOverlay').style.display = 'block';
                  document.getElementById('closedReason').innerText = "目前無開放日期，請稍後再來！";
-                 document.getElementById('skeletonOverlay').style.display = 'none'; // 隱藏骨架
+                 document.getElementById('skeletonOverlay').style.display = 'none'; 
                  return;
             } else {
                  document.getElementById('closedOverlay').style.display = 'none';
                  
-                 // 先清空原本的「載入中...」，改成「請選擇」
                  dateSelect.innerHTML = '<option value="" disabled selected>請選擇取貨日期</option>';
                  
-                 // 把後端抓到的日期一個一個塞進去
                  data.dates.forEach(item => {
                     let option = document.createElement("option");
                     option.value = item.value; 
@@ -387,25 +355,59 @@
                 });
             }
 
-            // --- 2. 處理菜單價格 ---
+            // --- 2. 處理菜單價格與售完狀態 ---
             if (data.menu) {
-                GLOBAL_MENU = data.menu; // 存到全域變數
+                GLOBAL_MENU = data.menu;
                 
-                // 自動更新網頁上的價格顯示
                 for (const [key, item] of Object.entries(GLOBAL_MENU)) {
                     let priceDiv = document.getElementById('price_' + key);
-                    if (priceDiv) {
-                        if (item.min === item.max) {
-                            priceDiv.innerText = `$${item.min} / 份`;
-                        } else {
-                            priceDiv.innerText = `$${item.min} ~ $${item.max} / 份`;
+                    let inputDiv = document.getElementById(key); // 數量輸入框
+                    
+                    // 這裡檢查是否已售完 (soldOut 為真)
+                    if (item.soldOut) {
+                        // ★ 處理售完狀態 ★
+                        if (priceDiv) {
+                            priceDiv.innerHTML = '<span style="color:#d9534f;"><i class="fas fa-times-circle"></i> 已售完</span>';
+                            // 移除背景色讓它看起來像標籤
+                            priceDiv.style.backgroundColor = 'transparent';
+                            priceDiv.style.border = '1px solid #d9534f';
+                        }
+                        
+                        // 鎖定輸入框
+                        if (inputDiv) {
+                            inputDiv.value = 0;
+                            inputDiv.disabled = true;
+                            // 找到旁邊的加減按鈕並鎖定
+                            let parent = inputDiv.parentElement;
+                            if (parent) {
+                                let btns = parent.querySelectorAll('button');
+                                btns.forEach(btn => btn.disabled = true);
+                            }
+                        }
+                        
+                        // 讓整行變灰色
+                        let rowItem = document.getElementById('item_' + key); 
+                        // 如果HTML沒有加 id="item_...", 嘗試往上找
+                        if (!rowItem && inputDiv) {
+                             rowItem = inputDiv.closest('.menu-item');
+                        }
+                        if (rowItem) {
+                            rowItem.classList.add('item-sold-out');
+                        }
+
+                    } else {
+                        // 正常販售
+                        if (priceDiv) {
+                            if (item.min === item.max) {
+                                priceDiv.innerText = `$${item.min} / 份`;
+                            } else {
+                                priceDiv.innerText = `$${item.min} ~ $${item.max} / 份`;
+                            }
                         }
                     }
                 }
             }
 
-            // --- 3. 全部更新完畢，移除骨架屏 ---
-            // 加一點點延遲(300ms)讓轉換更平滑，不會閃一下
             setTimeout(() => {
                 document.getElementById('skeletonOverlay').style.display = 'none';
             }, 300);
@@ -413,7 +415,6 @@
         .catch(err => {
             console.error("載入失敗", err);
             dateSelect.innerHTML = '<option value="" disabled>載入失敗，請重新整理</option>';
-            // 發生錯誤也要把骨架關掉，不然客人會卡在假畫面
             document.getElementById('skeletonOverlay').style.display = 'none';
         });
     }
@@ -427,6 +428,15 @@
         const extraBtns = document.querySelectorAll('.btn-extra');
         const extraInput = document.getElementById('qty_extra');
         const lockMsg = document.getElementById('lockMsg');
+
+        // ★ 檢查加購品項本身是否已售完
+        // 如果 Excel 設定 qty_extra 為 0，input 會被 disabled，這裡就不應該再打開它
+        let isExtraSoldOut = extraInput.disabled && GLOBAL_MENU['qty_extra'] && GLOBAL_MENU['qty_extra'].soldOut;
+
+        if (isExtraSoldOut) {
+             // 如果本身已售完，保持鎖定狀態，不執行解鎖邏輯
+             return; 
+        }
 
         if (mainQty > 0) {
             extraRow.style.opacity = '1';
@@ -445,6 +455,8 @@
 
     function changeQty(id, delta) {
         const input = document.getElementById(id);
+        if (input.disabled) return; // 如果被鎖定 (售完)，不准點擊
+
         let currentVal = parseInt(input.value) || 0;
         let newVal = currentVal + delta;
         if (newVal < 0) newVal = 0;
@@ -471,7 +483,6 @@
     }
 
     function updateSummary() {
-        // 為了 summary，我們需要知道品項名稱，如果 Excel 還沒載入完，就先用預設名稱
         let items = [
             {id: 'qty_pork', name: '封肉'},
             {id: 'qty_thigh', name: '蹄膀'},
@@ -484,7 +495,6 @@
         items.forEach(item => {
             let val = parseInt(document.getElementById(item.id).value) || 0;
             if (val > 0) {
-                // 如果 Excel 有名字就用 Excel 的，不然用預設的
                 let displayName = (GLOBAL_MENU[item.id]) ? GLOBAL_MENU[item.id].name : item.name;
                 summary.push(`${displayName}x${val}`);
             }
@@ -499,9 +509,7 @@
         }
     }
 
-    // ★★★ 已整合 SweetAlert2 的送出訂單功能 ★★★
     function submitOrder() {
-        // 1. 取得所有欄位資料
         let qty_pork = document.getElementById('qty_pork').value;
         let qty_thigh = document.getElementById('qty_thigh').value;
         let qty_feet = document.getElementById('qty_feet').value;
@@ -514,8 +522,6 @@
         
         let pickupDateSelect = document.getElementById('pickupDate'); 
         let pickupDate = pickupDateSelect.value;
-        
-        // --- 2. 驗證檢查 (改用 SweetAlert 漂亮提示) ---
         
         if (!pickupDate) { 
             Swal.fire({ icon: 'warning', title: '請選擇日期', text: '記得告訴我們哪天要來拿喔！📅', confirmButtonColor: '#9A7E6F' });
@@ -545,7 +551,6 @@
             return; 
         }
 
-        // --- 3. 準備資料 ---
         const orderData = {
             pickupDate: pickupDate,
             userName: manualName,
@@ -558,7 +563,6 @@
             note: noteInput
         };
 
-        // 產生訂單明細文字
         let receiptItems = [];
         let itemsToCheck = ['qty_pork', 'qty_thigh', 'qty_feet', 'qty_bamboo', 'qty_extra'];
         
@@ -591,7 +595,6 @@
                           `※ 價格僅供參考，實際金額依現場秤重為主。\n` + 
                           `已收到您的訂單，當天見！❤️`;
 
-        // --- 4. 顯示 Loading 畫面並鎖定按鈕 ---
         const btn = document.querySelector('.btn-submit');
         btn.disabled = true;
 
@@ -604,7 +607,6 @@
             }
         });
 
-        // --- 5. 送出資料 ---
         fetch(API_URL, {
             method: "POST",
             body: JSON.stringify(orderData)
@@ -659,4 +661,3 @@
 
 </body>
 </html>
-
