@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>阿珍封肉 - 線上點餐</title>
+    <title>阿珍封肉 - 線上預訂</title>
     
-    <meta property="og:title" content="阿珍封肉 - 線上點餐" />
+    <meta property="og:title" content="阿珍封肉 - 線上預訂" />
     <meta property="og:description" content="每日現做・古早味傳承。歡迎線上預訂美味封肉、蹄膀！" />
     <meta property="og:image" content="https://eddlewu8886.github.io/ajen-pork-order/banner.png" /> 
     <meta property="og:url" content="https://liff.line.me/2008905608-DekFDzvW" />
@@ -114,31 +114,27 @@
         .item-locked { opacity: 0.5; pointer-events: none; }
         .lock-msg { font-size: 0.8rem; color: #D84315; margin-left: 5px; display: none; }
         
+        /* ★ 新增：我的訂單 懸浮按鈕樣式 */
+        .btn-my-orders {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px);
+            color: var(--primary-color); border: 1px solid var(--primary-color);
+            padding: 8px 16px; border-radius: 25px; font-weight: bold; font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s ease; cursor: pointer;
+        }
+        .btn-my-orders:hover { background-color: var(--primary-color); color: white; transform: translateY(-2px); }
+
         /* --- 全頁骨架屏樣式 --- */
         #skeletonOverlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: var(--bg-color); 
-            z-index: 9998; 
-            overflow-y: scroll; 
-            padding-bottom: 100px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color); z-index: 9998; overflow-y: scroll; padding-bottom: 100px;
         }
-
         .sk-shimmer {
             background: #E0E0E0;
             background-image: linear-gradient(to right, #E0E0E0 0%, #F5F5F5 20%, #E0E0E0 40%, #E0E0E0 100%);
-            background-repeat: no-repeat;
-            background-size: 200% 100%; 
-            animation: shimmer 1.5s infinite linear;
-            border-radius: 8px;
+            background-repeat: no-repeat; background-size: 200% 100%; animation: shimmer 1.5s infinite linear; border-radius: 8px;
         }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .sk-header { width: 100%; height: 220px; border-radius: 0 0 30px 30px; margin-bottom: 20px; }
         .sk-container { max-width: 600px; margin: 0 auto; padding: 0 15px; }
         .sk-card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid #EFEBE9; }
@@ -153,6 +149,11 @@
     </style>
 </head>
 <body>
+
+<!-- ★ 新增：懸浮的「我的訂單」按鈕 -->
+<button class="btn-my-orders" onclick="checkMyOrders()">
+    <i class="fas fa-receipt me-1"></i> 我的訂單
+</button>
 
 <div id="closedOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; text-align: center; padding-top: 150px;">
     <i class="fas fa-store-slash" style="font-size: 5rem; color: #9A7E6F; margin-bottom: 20px;"></i>
@@ -308,14 +309,12 @@
 
 <script>
     // ★★★ 請替換成您的設定 ★★★
-    // 這是您提供的最新 API 網址
     const API_URL = "https://script.google.com/macros/s/AKfycbxj3cuMgcG0yENin7dGaB-OlIBnX6VMeogVDBCNjWHrzTDa69-TjY85MVaLmH-HezXZ/exec";  
     const LIFF_ID = "2008905608-DekFDzvW"; 
     
     let GLOBAL_MENU = {};
 
     window.onload = function() {
-
         liff.init({ liffId: LIFF_ID }).then(() => {
             if (liff.isLoggedIn()) {
                 liff.getProfile().then(profile => {
@@ -334,7 +333,6 @@
     function initSystem() {
         const dateSelect = document.getElementById('pickupDate');
         
-        // ★ 監聽日期變更：當使用者換日期，自動更新價格
         dateSelect.addEventListener('change', function() {
             updateMenuPrices();
         });
@@ -342,7 +340,6 @@
         fetch(API_URL) 
         .then(response => response.json())
         .then(data => {
-            // --- 1. 處理日期 ---
             if (data.dates.length === 0) {
                  document.getElementById('closedOverlay').style.display = 'block';
                  document.getElementById('closedReason').innerText = "目前無開放日期，請稍後再來！";
@@ -358,7 +355,6 @@
                     option.text = item.text;   
                     if (item.disabled) option.disabled = true; 
                     
-                    // ★ 儲存檔期代號 (CNY 或 normal) 到選項中
                     if (item.type) {
                         option.dataset.priceType = item.type;
                     } else {
@@ -369,10 +365,8 @@
                 });
             }
 
-            // --- 2. 處理菜單 ---
             if (data.menu) {
                 GLOBAL_MENU = data.menu;
-                // 資料載入後，先執行一次價格更新 (顯示預設或第一天的價格)
                 updateMenuPrices();
             }
 
@@ -387,24 +381,21 @@
         });
     }
 
-    // ★ 核心功能：根據日期更新價格 + 檢查售完狀態
     function updateMenuPrices() {
         const dateSelect = document.getElementById('pickupDate');
-        // 取得目前選中日期的檔期類型
         const selectedOption = dateSelect.options[dateSelect.selectedIndex];
         const currentType = (selectedOption && selectedOption.dataset.priceType) ? selectedOption.dataset.priceType : 'normal';
         
         for (const [key, item] of Object.entries(GLOBAL_MENU)) {
             let priceDiv = document.getElementById('price_' + key);
-            let inputDiv = document.getElementById(key); // 數量輸入框
+            let inputDiv = document.getElementById(key);
 
-            // 1. 先處理售完狀態 (優先級最高)
             if (item.soldOut) {
                 if (priceDiv) {
                     priceDiv.innerHTML = '<span style="color:#d9534f;"><i class="fas fa-times-circle"></i> 已售完</span>';
                     priceDiv.style.backgroundColor = 'transparent';
                     priceDiv.style.border = '1px solid #d9534f';
-                    priceDiv.style.color = 'inherit'; // 重置顏色
+                    priceDiv.style.color = 'inherit'; 
                 }
                 
                 if (inputDiv) {
@@ -421,10 +412,9 @@
                 if (!rowItem && inputDiv) rowItem = inputDiv.closest('.menu-item');
                 if (rowItem) rowItem.classList.add('item-sold-out');
 
-                continue; // 已售完就不用管價錢了，換下一個品項
+                continue; 
             } 
             
-            // 2. 如果沒售完，需解除鎖定 (以防萬一)
             if (inputDiv) {
                 inputDiv.disabled = false;
                 let parent = inputDiv.parentElement;
@@ -437,9 +427,7 @@
             if (!rowItem && inputDiv) rowItem = inputDiv.closest('.menu-item');
             if (rowItem) rowItem.classList.remove('item-sold-out');
 
-            // 3. 處理價格顯示 (一般 vs 過年)
             if (priceDiv) {
-                // 重置樣式
                 priceDiv.style.backgroundColor = '#EFEBE9';
                 priceDiv.style.border = 'none';
 
@@ -447,24 +435,20 @@
                 let displayMax = item.max;
                 let isCNY = false;
 
-                // 判斷：如果是 CNY 檔期 且 該品項有設定過年價
                 if (currentType === 'CNY' && item.min_cny) {
                     displayMin = item.min_cny;
-                    // 如果最高價沒填，預設跟最低價一樣
                     displayMax = item.max_cny ? item.max_cny : item.min_cny;
                     isCNY = true;
                 }
 
-                // 更新文字
                 if (displayMin == displayMax) {
                     priceDiv.innerText = `$${displayMin} / 份`;
                 } else {
                     priceDiv.innerText = `$${displayMin} ~ $${displayMax} / 份`;
                 }
 
-                // 變色提示
                 if (isCNY) {
-                    priceDiv.style.color = "#D84315"; // 過年紅
+                    priceDiv.style.color = "#D84315"; 
                     priceDiv.style.fontWeight = "bold";
                 } else {
                     priceDiv.style.color = "var(--primary-color)";
@@ -483,12 +467,9 @@
         const extraInput = document.getElementById('qty_extra');
         const lockMsg = document.getElementById('lockMsg');
 
-        // 檢查加購品項本身是否已售完
         let isExtraSoldOut = extraInput.disabled && GLOBAL_MENU['qty_extra'] && GLOBAL_MENU['qty_extra'].soldOut;
 
-        if (isExtraSoldOut) {
-             return; 
-        }
+        if (isExtraSoldOut) { return; }
 
         if (mainQty > 0) {
             extraRow.style.opacity = '1';
@@ -612,10 +593,11 @@
             qty_feet: qty_feet,
             qty_bamboo: qty_bamboo,
             qty_extra: qty_extra, 
-            note: noteInput
+            note: noteInput,
+            // ★ 新增：把客人的 LINE ID 一起送給後端儲存
+            userId: document.getElementById('userId').value 
         };
 
-        // ★ 取得目前的檔期類型 (為了計算正確金額)
         const selectedOption = pickupDateSelect.options[pickupDateSelect.selectedIndex];
         const currentType = (selectedOption && selectedOption.dataset.priceType) ? selectedOption.dataset.priceType : 'normal';
 
@@ -627,7 +609,6 @@
             if (qty > 0) {
                 let itemData = GLOBAL_MENU[key];
                 if (itemData) {
-                    // ★ 判斷價格邏輯 (跟 updateMenuPrices 一樣)
                     let useMin = itemData.min;
                     let useMax = itemData.max;
                     
@@ -720,6 +701,102 @@
             });
             btn.innerHTML = '確認送出訂單 <i class="fas fa-paper-plane ms-2"></i>';
             btn.disabled = false;
+        });
+    }
+
+    // ==========================================
+    // ★ 新增功能：我的訂單查詢邏輯 (LINE ID 或 電話)
+    // ==========================================
+    function checkMyOrders() {
+        let userId = document.getElementById('userId').value;
+        
+        if (userId) {
+            // 情境 1：在 LINE 裡面開啟，直接用 LINE ID 無感查詢
+            fetchOrders(userId, 'userId');
+        } else {
+            // 情境 2：不在 LINE 裡面（例如普通網頁），跳出視窗要電話號碼
+            Swal.fire({
+                title: '查詢訂單',
+                text: '請輸入您預訂時填寫的聯絡電話：',
+                input: 'tel',
+                inputPlaceholder: '例如：0912345678',
+                showCancelButton: true,
+                confirmButtonText: '開始查詢',
+                cancelButtonText: '取消',
+                confirmButtonColor: '#9A7E6F',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return '請輸入電話號碼才能查詢喔！'
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    // 將輸入的電話去除前後空白，送給後端查詢
+                    fetchOrders(result.value.trim(), 'phone');
+                }
+            });
+        }
+    }
+
+    // 發送請求並顯示訂單的共用函式
+    function fetchOrders(searchValue, searchType) {
+        Swal.fire({
+            title: '努力尋找中...',
+            html: '正在為您調閱歷史訂單 🔍',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        // 打 API (加上 searchType 來決定是用 userId 還是 phone 查)
+        let requestUrl = API_URL + "?action=getMyOrders&" + searchType + "=" + encodeURIComponent(searchValue);
+
+        fetch(requestUrl)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.orders.length === 0) {
+                    Swal.fire({
+                        icon: 'info', title: '目前沒有訂單', text: '您尚未建立任何訂單，或查無此電話資料！😋', confirmButtonColor: '#9A7E6F'
+                    });
+                    return;
+                }
+
+                // 組合顯示畫面 (文青風格小卡)
+                let htmlStr = '<div style="text-align:left; max-height:60vh; overflow-y:auto; font-size:0.95rem; padding: 5px;">';
+                data.orders.forEach((o) => {
+                    let statusColor = o.status === '已處理' ? '#4CAF50' : '#D84315';
+                    htmlStr += `
+                    <div style="border: 1px solid #EFEBE9; padding: 15px; margin-bottom: 12px; border-radius: 10px; background-color: #FAFAFA; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #D7CCC8; padding-bottom: 8px; margin-bottom: 8px;">
+                            <b style="color: #5D4037; font-size: 1.05rem;">🗓️ 取貨：${o.pickupDate}</b>
+                            <span style="color: ${statusColor}; font-weight: bold; font-size: 0.9rem; background: #fff; padding: 2px 8px; border-radius: 4px; border: 1px solid ${statusColor};">${o.status}</span>
+                        </div>
+                        <div style="color: #8D6E63; font-size: 0.8rem; margin-bottom: 5px;">下單時間：${o.time}</div>
+                        <div style="line-height: 1.6; color: #4A4641;">
+                            ${o.pork > 0 ? '封肉x'+o.pork+'&nbsp;&nbsp;' : ''}
+                            ${o.thigh > 0 ? '蹄膀x'+o.thigh+'&nbsp;&nbsp;' : ''}
+                            ${o.feet > 0 ? '豬腳x'+o.feet+'&nbsp;&nbsp;' : ''}
+                            ${o.bamboo > 0 ? '筍干x'+o.bamboo+'&nbsp;&nbsp;' : ''}
+                            ${o.extra > 0 ? '腳蹄x'+o.extra : ''}
+                        </div>
+                    </div>`;
+                });
+                htmlStr += '</div>';
+
+                Swal.fire({
+                    title: '📋 我的訂單',
+                    html: htmlStr,
+                    confirmButtonText: '關閉視窗',
+                    confirmButtonColor: '#9A7E6F'
+                });
+            } else {
+                throw new Error("API 回傳失敗");
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: 'error', title: '連線異常', text: '暫時無法讀取您的訂單，請稍後再試。', confirmButtonColor: '#d33'
+            });
         });
     }
 </script>
