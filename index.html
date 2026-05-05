@@ -325,9 +325,6 @@
                     
                     // ★★★ 新增判斷：如果網址有帶 ?action=check，就自動幫客人打開查詢視窗 ★★★
                     let urlParams = new URLSearchParams(window.location.search);
-                    if (urlParams.get('action') === 'check') {
-                        setTimeout(() => { checkMyOrders(); }, 500); 
-                    }
                 });
             } else {
                 liff.login();
@@ -735,97 +732,9 @@
     // ==========================================
     // ★ 新增功能：我的訂單查詢邏輯 (LINE ID 或 電話)
     // ==========================================
-    function checkMyOrders() {
-        let userId = document.getElementById('userId').value;
-        
-        if (userId) {
-            // 情境 1：在 LINE 裡面開啟，直接用 LINE ID 無感查詢
-            fetchOrders(userId, 'userId');
-        } else {
-            // 情境 2：不在 LINE 裡面（例如普通網頁），跳出視窗要電話號碼
-            Swal.fire({
-                title: '查詢訂單',
-                text: '請輸入您預訂時填寫的聯絡電話：',
-                input: 'tel',
-                inputPlaceholder: '例如：0912345678',
-                showCancelButton: true,
-                confirmButtonText: '開始查詢',
-                cancelButtonText: '取消',
-                confirmButtonColor: '#9A7E6F',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return '請輸入電話號碼才能查詢喔！'
-                    }
-                }
-            }).then((result) => {
-                if (result.isConfirmed && result.value) {
-                    // 將輸入的電話去除前後空白，送給後端查詢
-                    fetchOrders(result.value.trim(), 'phone');
-                }
-            });
-        }
-    }
-
-    // 發送請求並顯示訂單的共用函式
-    function fetchOrders(searchValue, searchType) {
-        Swal.fire({
-            title: '努力尋找中...',
-            html: '正在為您調閱歷史訂單 🔍',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-        });
-
-        // 打 API (加上 searchType 來決定是用 userId 還是 phone 查)
-        let requestUrl = API_URL + "?action=getMyOrders&" + searchType + "=" + encodeURIComponent(searchValue);
-
-        fetch(requestUrl)
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                if (data.orders.length === 0) {
-                    Swal.fire({
-                        icon: 'info', title: '目前沒有訂單', text: '您尚未建立任何訂單，或查無此電話資料！😋', confirmButtonColor: '#9A7E6F'
-                    });
-                    return;
-                }
-
-                // 組合顯示畫面 (文青風格小卡)
-                let htmlStr = '<div style="text-align:left; max-height:60vh; overflow-y:auto; font-size:0.95rem; padding: 5px;">';
-                data.orders.forEach((o) => {
-                    let statusColor = o.status === '已處理' ? '#4CAF50' : '#D84315';
-                    htmlStr += `
-                    <div style="border: 1px solid #EFEBE9; padding: 15px; margin-bottom: 12px; border-radius: 10px; background-color: #FAFAFA; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #D7CCC8; padding-bottom: 8px; margin-bottom: 8px;">
-                            <b style="color: #5D4037; font-size: 1.05rem;">🗓️ 取貨：${o.pickupDate}</b>
-                            <span style="color: ${statusColor}; font-weight: bold; font-size: 0.9rem; background: #fff; padding: 2px 8px; border-radius: 4px; border: 1px solid ${statusColor};">${o.status}</span>
-                        </div>
-                        <div style="color: #8D6E63; font-size: 0.8rem; margin-bottom: 5px;">下單時間：${o.time}</div>
-                        <div style="line-height: 1.6; color: #4A4641;">
-                            ${o.pork > 0 ? '封肉x'+o.pork+'&nbsp;&nbsp;' : ''}
-                            ${o.thigh > 0 ? '蹄膀x'+o.thigh+'&nbsp;&nbsp;' : ''}
-                            ${o.feet > 0 ? '豬腳x'+o.feet+'&nbsp;&nbsp;' : ''}
-                            ${o.bamboo > 0 ? '筍干x'+o.bamboo+'&nbsp;&nbsp;' : ''}
-                            ${o.extra > 0 ? '腳蹄x'+o.extra : ''}
-                        </div>
-                    </div>`;
-                });
-                htmlStr += '</div>';
-
-                Swal.fire({
-                    title: '📋 我的訂單',
-                    html: htmlStr,
-                    confirmButtonText: '關閉視窗',
-                    confirmButtonColor: '#9A7E6F'
-                });
-            } else {
-                throw new Error("API 回傳失敗");
-            }
-        })
-        .catch(err => {
-            Swal.fire({
-                icon: 'error', title: '連線異常', text: '暫時無法讀取您的訂單，請稍後再試。', confirmButtonColor: '#d33'
-            });
-        });
+	function checkMyOrders() {
+        // 直接跳轉到新的專屬查詢網頁
+        window.location.href = "query.html";
     }
 </script>
 
