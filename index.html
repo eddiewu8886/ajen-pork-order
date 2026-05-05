@@ -309,17 +309,25 @@
 
 <script>
     // ★★★ 請替換成您的設定 ★★★
+    // 這是您提供的最新 API 網址
     const API_URL = "https://script.google.com/macros/s/AKfycbxj3cuMgcG0yENin7dGaB-OlIBnX6VMeogVDBCNjWHrzTDa69-TjY85MVaLmH-HezXZ/exec";  
     const LIFF_ID = "2008905608-DekFDzvW"; 
     
     let GLOBAL_MENU = {};
 
     window.onload = function() {
+
         liff.init({ liffId: LIFF_ID }).then(() => {
             if (liff.isLoggedIn()) {
                 liff.getProfile().then(profile => {
                     document.getElementById('userId').value = profile.userId;
                     document.getElementById('userNameInput').value = profile.displayName;
+                    
+                    // ★★★ 新增判斷：如果網址有帶 ?action=check，就自動幫客人打開查詢視窗 ★★★
+                    let urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('action') === 'check') {
+                        setTimeout(() => { checkMyOrders(); }, 500); 
+                    }
                 });
             } else {
                 liff.login();
@@ -333,6 +341,7 @@
     function initSystem() {
         const dateSelect = document.getElementById('pickupDate');
         
+        // ★ 監聽日期變更：當使用者換日期，自動更新價格
         dateSelect.addEventListener('change', function() {
             updateMenuPrices();
         });
@@ -340,6 +349,7 @@
         fetch(API_URL) 
         .then(response => response.json())
         .then(data => {
+            // --- 1. 處理日期 ---
             if (data.dates.length === 0) {
                  document.getElementById('closedOverlay').style.display = 'block';
                  document.getElementById('closedReason').innerText = "目前無開放日期，請稍後再來！";
@@ -355,6 +365,7 @@
                     option.text = item.text;   
                     if (item.disabled) option.disabled = true; 
                     
+                    // ★ 儲存檔期代號 (CNY 或 normal) 到選項中
                     if (item.type) {
                         option.dataset.priceType = item.type;
                     } else {
@@ -365,8 +376,10 @@
                 });
             }
 
+            // --- 2. 處理菜單 ---
             if (data.menu) {
                 GLOBAL_MENU = data.menu;
+                // 資料載入後，先執行一次價格更新 (顯示預設或第一天的價格)
                 updateMenuPrices();
             }
 
@@ -381,21 +394,24 @@
         });
     }
 
+    // ★ 核心功能：根據日期更新價格 + 檢查售完狀態
     function updateMenuPrices() {
         const dateSelect = document.getElementById('pickupDate');
+        // 取得目前選中日期的檔期類型
         const selectedOption = dateSelect.options[dateSelect.selectedIndex];
         const currentType = (selectedOption && selectedOption.dataset.priceType) ? selectedOption.dataset.priceType : 'normal';
         
         for (const [key, item] of Object.entries(GLOBAL_MENU)) {
             let priceDiv = document.getElementById('price_' + key);
-            let inputDiv = document.getElementById(key);
+            let inputDiv = document.getElementById(key); // 數量輸入框
 
+            // 1. 先處理售完狀態 (優先級最高)
             if (item.soldOut) {
                 if (priceDiv) {
                     priceDiv.innerHTML = '<span style="color:#d9534f;"><i class="fas fa-times-circle"></i> 已售完</span>';
                     priceDiv.style.backgroundColor = 'transparent';
                     priceDiv.style.border = '1px solid #d9534f';
-                    priceDiv.style.color = 'inherit'; 
+                    priceDiv.style.color = 'inherit'; // 重置顏色
                 }
                 
                 if (inputDiv) {
@@ -412,9 +428,10 @@
                 if (!rowItem && inputDiv) rowItem = inputDiv.closest('.menu-item');
                 if (rowItem) rowItem.classList.add('item-sold-out');
 
-                continue; 
+                continue; // 已售完就不用管價錢了，換下一個品項
             } 
             
+            // 2. 如果沒售完，需解除鎖定 (以防萬一)
             if (inputDiv) {
                 inputDiv.disabled = false;
                 let parent = inputDiv.parentElement;
@@ -427,7 +444,9 @@
             if (!rowItem && inputDiv) rowItem = inputDiv.closest('.menu-item');
             if (rowItem) rowItem.classList.remove('item-sold-out');
 
+            // 3. 處理價格顯示 (一般 vs 過年)
             if (priceDiv) {
+                // 重置樣式
                 priceDiv.style.backgroundColor = '#EFEBE9';
                 priceDiv.style.border = 'none';
 
@@ -435,20 +454,24 @@
                 let displayMax = item.max;
                 let isCNY = false;
 
+                // 判斷：如果是 CNY 檔期 且 該品項有設定過年價
                 if (currentType === 'CNY' && item.min_cny) {
                     displayMin = item.min_cny;
+                    // 如果最高價沒填，預設跟最低價一樣
                     displayMax = item.max_cny ? item.max_cny : item.min_cny;
                     isCNY = true;
                 }
 
+                // 更新文字
                 if (displayMin == displayMax) {
                     priceDiv.innerText = `$${displayMin} / 份`;
                 } else {
                     priceDiv.innerText = `$${displayMin} ~ $${displayMax} / 份`;
                 }
 
+                // 變色提示
                 if (isCNY) {
-                    priceDiv.style.color = "#D84315"; 
+                    priceDiv.style.color = "#D84315"; // 過年紅
                     priceDiv.style.fontWeight = "bold";
                 } else {
                     priceDiv.style.color = "var(--primary-color)";
@@ -467,9 +490,12 @@
         const extraInput = document.getElementById('qty_extra');
         const lockMsg = document.getElementById('lockMsg');
 
+        // 檢查加購品項本身是否已售完
         let isExtraSoldOut = extraInput.disabled && GLOBAL_MENU['qty_extra'] && GLOBAL_MENU['qty_extra'].soldOut;
 
-        if (isExtraSoldOut) { return; }
+        if (isExtraSoldOut) {
+             return; 
+        }
 
         if (mainQty > 0) {
             extraRow.style.opacity = '1';
@@ -598,6 +624,7 @@
             userId: document.getElementById('userId').value 
         };
 
+        // ★ 取得目前的檔期類型 (為了計算正確金額)
         const selectedOption = pickupDateSelect.options[pickupDateSelect.selectedIndex];
         const currentType = (selectedOption && selectedOption.dataset.priceType) ? selectedOption.dataset.priceType : 'normal';
 
@@ -609,6 +636,7 @@
             if (qty > 0) {
                 let itemData = GLOBAL_MENU[key];
                 if (itemData) {
+                    // ★ 判斷價格邏輯
                     let useMin = itemData.min;
                     let useMax = itemData.max;
                     
