@@ -78,19 +78,19 @@
         <div style="color: #8D6E63; font-weight: bold;">正在尋找您的專屬訂單...</div>
     </div>
 
-    <!-- 狀態提示區：沒有 LINE ID，顯示電話輸入框 -->
+    <!-- 訂單列表顯示區 -->
+    <div id="orderListSection" style="display: none;"></div>
+
+    <!-- 電話查詢區塊 (預設隱藏，有需要時會自動顯示) -->
     <div id="phoneSection" style="display: none;">
-        <div class="order-card text-center">
-            <i class="fas fa-search" style="font-size: 3rem; color: #D7CCC8; margin-bottom: 15px;"></i>
-            <h5 style="font-weight: bold; color: var(--text-dark);">請輸入聯絡電話</h5>
-            <p style="color: #8D6E63; font-size: 0.9rem;">非 LINE 環境下，請輸入您訂購時留的電話號碼</p>
+        <div class="order-card text-center" style="background-color: #FAFAFA; border: 2px dashed #D7CCC8;">
+            <i class="fas fa-phone-alt" style="font-size: 2.5rem; color: #D7CCC8; margin-bottom: 15px;"></i>
+            <h5 style="font-weight: bold; color: var(--text-dark);">用電話號碼查詢</h5>
+            <p style="color: #8D6E63; font-size: 0.9rem; margin-bottom: 15px;">若是尚未綁定 LINE 的舊訂單，請輸入電話查詢</p>
             <input type="tel" id="searchPhone" class="form-control mb-3" placeholder="例如：0912345678" style="text-align: center; letter-spacing: 2px;">
             <button class="btn-primary-custom" onclick="searchByPhone()">開始查詢</button>
         </div>
     </div>
-
-    <!-- 訂單列表顯示區 -->
-    <div id="orderListSection" style="display: none;"></div>
 
     <a href="https://liff.line.me/2008905608-DekFDzvW" class="back-btn">
         <i class="fas fa-arrow-left"></i> 返回線上點餐
@@ -99,6 +99,7 @@
 
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
+    // ★★★ 請替換成您的設定 ★★★
     const API_URL = "https://script.google.com/macros/s/AKfycbxj3cuMgcG0yENin7dGaB-OlIBnX6VMeogVDBCNjWHrzTDa69-TjY85MVaLmH-HezXZ/exec";  
     const LIFF_ID = "2008905608-DekFDzvW"; 
 
@@ -106,17 +107,18 @@
         liff.init({ liffId: LIFF_ID }).then(() => {
             if (liff.isLoggedIn()) {
                 liff.getProfile().then(profile => {
-                    // 有 LINE ID，直接無感查詢
+                    // 有 LINE ID，先嘗試用 LINE ID 無感查詢
                     fetchOrders(profile.userId, 'userId');
                 });
             } else {
-                // 沒有登入，顯示電話輸入框
+                // 沒有登入 LINE，直接顯示電話輸入框
                 document.getElementById('loadingSection').style.display = 'none';
                 document.getElementById('phoneSection').style.display = 'block';
             }
         });
     };
 
+    // 點擊「開始查詢」執行的動作
     function searchByPhone() {
         let phone = document.getElementById('searchPhone').value.trim();
         if (!phone) {
@@ -124,10 +126,12 @@
             return;
         }
         document.getElementById('phoneSection').style.display = 'none';
+        document.getElementById('orderListSection').style.display = 'none';
         document.getElementById('loadingSection').style.display = 'block';
         fetchOrders(phone, 'phone');
     }
 
+    // 發送查詢請求到後端
     function fetchOrders(searchValue, searchType) {
         let requestUrl = API_URL + "?action=getMyOrders&" + searchType + "=" + encodeURIComponent(searchValue);
 
@@ -139,16 +143,30 @@
             listSection.style.display = 'block';
 
             if (data.status === 'success') {
+                
+                // 狀況一：沒有找到任何訂單
                 if (data.orders.length === 0) {
-                    listSection.innerHTML = `
-                        <div class="order-card text-center" style="padding: 40px 20px;">
-                            <i class="fas fa-box-open" style="font-size: 3rem; color: #D7CCC8; margin-bottom: 15px;"></i>
-                            <h5 style="font-weight: bold; color: var(--text-dark);">目前沒有訂單</h5>
-                            <p style="color: #8D6E63; font-size: 0.95rem;">您尚未建立任何訂單，或查無資料。</p>
-                        </div>`;
+                    if (searchType === 'userId') {
+                        // 如果是用 LINE 找卻沒找到，顯示溫馨提示，並「自動打開」電話查詢框
+                        listSection.innerHTML = `
+                            <div class="order-card text-center" style="padding: 20px 10px;">
+                                <h6 style="font-weight: bold; color: var(--text-dark); margin: 0;">目前 LINE 帳號尚無紀錄</h6>
+                            </div>`;
+                        document.getElementById('phoneSection').style.display = 'block';
+                    } else {
+                        // 如果是用電話找卻沒找到
+                        listSection.innerHTML = `
+                            <div class="order-card text-center" style="padding: 40px 20px;">
+                                <i class="fas fa-search-minus" style="font-size: 3rem; color: #D7CCC8; margin-bottom: 15px;"></i>
+                                <h5 style="font-weight: bold; color: var(--text-dark);">查無此電話的訂單</h5>
+                                <p style="color: #8D6E63; font-size: 0.95rem;">請確認號碼是否輸入正確。</p>
+                            </div>`;
+                        document.getElementById('phoneSection').style.display = 'block'; // 讓框框留著，客人可以重輸
+                    }
                     return;
                 }
 
+                // 狀況二：有找到訂單，開始組合 HTML
                 let htmlStr = '';
                 data.orders.forEach((o) => {
                     let isDone = (o.status === '已處理');
@@ -171,7 +189,32 @@
                         </div>
                     </div>`;
                 });
+                
+                // 如果客人一開始是用 LINE 成功查到新訂單，我們在最下面補上一顆按鈕，讓他可以切換找舊的
+                if (searchType === 'userId') {
+                    htmlStr += `
+                    <div class="text-center mt-3 mb-4">
+                        <button class="btn btn-sm" style="color: #8D6E63; border: 1px solid #D7CCC8; background: #FAFAFA; padding: 8px 15px; border-radius: 20px;" 
+                            onclick="document.getElementById('phoneSection').style.display='block'; this.style.display='none';">
+                            <i class="fas fa-search"></i> 沒看到舊訂單？改用電話查詢
+                        </button>
+                    </div>`;
+                }
+                
+                // 如果客人是用電話查的，給他一個「查詢其他號碼」的按鈕
+                if (searchType === 'phone') {
+                    document.getElementById('phoneSection').style.display = 'none';
+                    htmlStr += `
+                    <div class="text-center mt-3 mb-4">
+                        <button class="btn btn-sm" style="color: #8D6E63; border: 1px solid #D7CCC8; background: #FAFAFA; padding: 8px 15px; border-radius: 20px;" 
+                            onclick="document.getElementById('phoneSection').style.display='block'; document.getElementById('orderListSection').style.display='none'; document.getElementById('searchPhone').value='';">
+                            <i class="fas fa-redo"></i> 查詢其他號碼
+                        </button>
+                    </div>`;
+                }
+
                 listSection.innerHTML = htmlStr;
+
             } else {
                 listSection.innerHTML = '<div class="text-center text-danger">讀取失敗，請重新整理</div>';
             }
